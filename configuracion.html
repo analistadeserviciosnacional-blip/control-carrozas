@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salida de Carrozas J.R. — Configuración</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16162a;--gold:#c9a84c;--gl:#e8c97a;--w:#f9f9fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--w);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 0% 0%,rgba(201,168,76,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 100% 100%,rgba(44,74,124,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:rgba(22,22,42,.97);backdrop-filter:blur(12px);z-index:100;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--w);display:flex;align-items:center;gap:10px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.a-badge{background:rgba(44,74,124,.3);border:1px solid rgba(100,140,200,.3);color:#a8c0e8;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;}
+.btn-bk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-bk:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.alert-bar{background:rgba(201,168,76,.08);border-bottom:1px solid rgba(201,168,76,.15);padding:10px 24px;font-size:12px;color:rgba(201,168,76,.8);display:flex;align-items:center;gap:8px;}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(22,22,42,.85);position:sticky;top:57px;z-index:50;backdrop-filter:blur(12px);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:110px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:rgba(255,255,255,.6);}
+
+/* Layout */
+.page{max-width:960px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+.panel{display:none;animation:fadeIn .25s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--w);margin-bottom:4px;}
+.ps{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:24px;}
+
+/* Stats mini */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:22px;}
+.sc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;text-align:center;}
+.sn{font-family:'Playfair Display',serif;font-size:26px;color:var(--gold);}
+.sl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+
+/* Section */
+.sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;margin-bottom:18px;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.st{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;}
+
+/* Form fields */
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:580px){.f2,.f3{grid-template-columns:1fr;}}
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:500;margin-bottom:7px;}
+input,select,textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,background .2s;appearance:none;}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.22);}
+input:focus,select:focus,textarea:focus{border-color:rgba(201,168,76,.55);background:rgba(255,255,255,.09);}
+select option{background:#16162a;color:#f9f9fc;}
+textarea{resize:vertical;min-height:70px;line-height:1.5;}
+
+/* Buttons */
+.btn-p{padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:#16162a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-p:hover{opacity:.88;transform:translateY(-1px);}
+.btn-p:active{transform:translateY(0);}
+.btn-s{padding:9px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:rgba(255,255,255,.7);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-s:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.btn-e{padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.08);color:var(--gl);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-e:hover{background:rgba(201,168,76,.18);}
+.btn-d{padding:6px 12px;border-radius:8px;border:1px solid rgba(192,64,64,.3);background:rgba(192,64,64,.08);color:#f09090;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-d:hover{background:rgba(192,64,64,.2);}
+
+/* Table */
+.tabla{width:100%;border-collapse:collapse;}
+.tabla th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:500;padding:0 10px 12px;text-align:left;}
+.tabla td{padding:11px 10px;border-top:1px solid rgba(255,255,255,.05);font-size:13px;color:rgba(255,255,255,.75);vertical-align:middle;}
+.tabla tr:hover td{background:rgba(255,255,255,.025);}
+.acc{display:flex;gap:6px;flex-wrap:nowrap;}
+@media(max-width:620px){.hm{display:none;}}
+
+/* Badges */
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;display:inline-block;white-space:nowrap;}
+.ba{background:rgba(44,74,124,.3);color:#a8c0e8;}
+.bd{background:rgba(26,92,58,.3);color:#90d4a0;}
+.bc{background:rgba(92,58,26,.3);color:#e8b870;}
+.bact{background:rgba(26,92,58,.25);color:#90d4a0;}
+.bina{background:rgba(192,64,64,.2);color:#f09090;}
+.btal{background:rgba(92,58,26,.3);color:#e8b870;}
+.bdis{background:rgba(26,92,58,.25);color:#90d4a0;}
+
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:16px;}
+.modal.open{display:flex;}
+.mbox{background:#1c1c34;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;width:100%;max-width:520px;animation:slideUp .3s ease;max-height:92vh;overflow-y:auto;}
+@keyframes slideUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.mt{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;color:var(--w);}
+.ma{display:flex;gap:10px;margin-top:20px;}
+.mc{flex:1;padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.mc:hover{background:rgba(255,255,255,.06);}
+
+/* Confirm */
+.cdlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);}
+.cdlg.open{display:flex;}
+.cbox{background:#1c1c34;border:1px solid rgba(192,64,64,.35);border-radius:16px;padding:28px;width:100%;max-width:380px;text-align:center;animation:slideUp .25s ease;}
+.cbox h3{font-size:18px;margin-bottom:10px;color:var(--w);}
+.cbox p{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:20px;line-height:1.6;}
+.cbtns{display:flex;gap:10px;}
+
+/* Password */
+.pw{position:relative;}
+.pw input{padding-right:42px;}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:15px;color:rgba(255,255,255,.3);background:none;border:none;padding:0;}
+.eye:hover{color:rgba(255,255,255,.6);}
+
+/* Toggle */
+.tw{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.tw:last-child{border-bottom:none;}
+.tog{position:relative;width:38px;height:22px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.tsl{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:22px;cursor:pointer;transition:.25s;}
+.tsl:before{content:'';position:absolute;width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+.tog input:checked+.tsl{background:var(--gold);}
+.tog input:checked+.tsl:before{transform:translateX(16px);}
+.tl{font-size:13px;color:rgba(255,255,255,.65);line-height:1.4;}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);border-radius:12px;padding:13px 22px;font-size:13px;font-weight:500;z-index:400;transition:all .35s cubic-bezier(.22,.8,.36,1);opacity:0;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:rgba(26,92,58,.96);border:1px solid rgba(80,160,100,.5);color:#90d4a0;}
+.toast.err{background:rgba(100,28,28,.96);border:1px solid rgba(192,64,64,.5);color:#f09090;}
+.toast.info{background:rgba(22,22,42,.96);border:1px solid rgba(201,168,76,.4);color:var(--gl);}
+
+/* DB indicator */
+.db-bar{display:flex;align-items:center;gap:8px;padding:8px 24px;background:rgba(26,92,58,.08);border-bottom:1px solid rgba(80,160,100,.12);font-size:11px;color:rgba(144,212,160,.7);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#90d4a0;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Empty state */
+.empty{text-align:center;padding:36px 20px;color:rgba(255,255,255,.2);font-size:13px;}
+.empty span{display:block;font-size:28px;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand"><div class="dot"></div>Salida de Carrozas J.R.</div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="a-badge">🔐 Administrador</span>
+    <button class="btn-bk" onclick="history.back()">← Volver</button>
+  </div>
+</div>
+
+<div class="db-bar">
+  <div class="db-dot"></div>
+  Base de datos local activa — los datos se guardan en este navegador automáticamente
+</div>
+
+<div class="alert-bar">🔒 Sección exclusiva del Administrador. Todos los cambios se guardan automáticamente.</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="setTab('usuarios')"    id="tab-usuarios">👥 Usuarios</div>
+  <div class="tab"        onclick="setTab('carrozas')"    id="tab-carrozas">🚗 Carrozas</div>
+  <div class="tab"        onclick="setTab('regionales')"  id="tab-regionales">📍 Regionales</div>
+  <div class="tab"        onclick="setTab('sistema')"     id="tab-sistema">⚙️ Sistema</div>
+</div>
+
+<div class="page">
+
+  <!-- ════ USUARIOS ════ -->
+  <div class="panel active" id="panel-usuarios">
+    <div class="pt">Gestión de usuarios</div>
+    <div class="ps">Agrega, edita o elimina conductores, coordinadores y administradores. Se guardan automáticamente.</div>
+    <div class="stats" id="stats-u"></div>
+    <div class="sec">
+      <div class="sh">
+        <div class="st">Usuarios registrados</div>
+        <button class="btn-p" onclick="abrirU()">+ Nuevo usuario</button>
+      </div>
+      <div id="wrap-u"><div class="empty"><span>👥</span>Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ════ CARROZAS ════ -->
+  <div class="panel" id="panel-carrozas">
+    <div class="pt">Gestión de carrozas</div>
+    <div class="ps">Registra, edita o elimina carrozas de la flota. Se guardan automáticamente.</div>
+    <div class="stats" id="stats-c"></div>
+    <div class="sec">
+      <div class="sh">
+        <div class="st">Flota de carrozas</div>
+        <button class="btn-p" onclick="abrirC()">+ Nueva carroza</button>
+      </div>
+      <div id="wrap-c"><div class="empty"><span>🚗</span>Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ════ REGIONALES ════ -->
+  <div class="panel" id="panel-regionales">
+    <div class="pt">Gestión de regionales</div>
+    <div class="ps">Agrega, edita o elimina sedes coordinadoras. Se guardan automáticamente.</div>
+    <div class="sec">
+      <div class="sh">
+        <div class="st">Sedes registradas</div>
+        <button class="btn-p" onclick="abrirR()">+ Nueva regional</button>
+      </div>
+      <div id="wrap-r"><div class="empty"><span>📍</span>Cargando...</div></div>
+    </div>
+  </div>
+
+  <!-- ════ SISTEMA ════ -->
+  <div class="panel" id="panel-sistema">
+    <div class="pt">Configuración del sistema</div>
+    <div class="ps">Información de la empresa, WhatsApp, seguridad y preferencias. Todo se guarda automáticamente.</div>
+
+    <div class="sec">
+      <div class="sh"><div class="st">Información de la empresa</div></div>
+      <div class="f2">
+        <div class="field"><label>Nombre de la empresa</label><input type="text" id="e-nombre" placeholder="Salida de Carrozas J.R."/></div>
+        <div class="field"><label>NIT / Identificación</label><input type="text" id="e-nit" placeholder="900.123.456-7"/></div>
+      </div>
+      <div class="f2">
+        <div class="field"><label>Teléfono principal</label><input type="tel" id="e-tel" placeholder="+57 300 000 0000"/></div>
+        <div class="field"><label>Correo de contacto</label><input type="email" id="e-mail" placeholder="correo@empresa.com"/></div>
+      </div>
+      <div class="field"><label>Dirección</label><input type="text" id="e-dir" placeholder="Calle, ciudad, departamento"/></div>
+      <div style="margin-top:16px">
+        <button class="btn-p" onclick="guardarSistema()">💾 Guardar información</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sh"><div class="st">WhatsApp de reportes</div></div>
+      <div class="f2">
+        <div class="field"><label>Número principal (reportes)</label><input type="tel" id="wa1" placeholder="+57 300 000 0000"/></div>
+        <div class="field"><label>Número secundario (backup)</label><input type="tel" id="wa2" placeholder="+57 300 000 0000"/></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn-p" onclick="guardarSistema()">💾 Guardar números</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sh"><div class="st">Cambiar contraseña del administrador</div></div>
+      <div class="f2">
+        <div class="field">
+          <label>Contraseña actual</label>
+          <div class="pw"><input type="password" id="p0" placeholder="Contraseña actual"/><button class="eye" onclick="togglePass('p0',this)">👁</button></div>
+        </div>
+        <div class="field">
+          <label>Nueva contraseña</label>
+          <div class="pw"><input type="password" id="p1" placeholder="Nueva contraseña"/><button class="eye" onclick="togglePass('p1',this)">👁</button></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Confirmar nueva contraseña</label>
+        <div class="pw"><input type="password" id="p2" placeholder="Repetir nueva contraseña"/><button class="eye" onclick="togglePass('p2',this)">👁</button></div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn-p" onclick="cambiarPass()">🔐 Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sh"><div class="st">Preferencias generales</div></div>
+      <div id="prefs-wrap">
+        <div class="tw"><label class="tog"><input type="checkbox" id="pref-wa-salida"/><span class="tsl"></span></label><span class="tl">Enviar reporte automático por WhatsApp al registrar salida</span></div>
+        <div class="tw"><label class="tog"><input type="checkbox" id="pref-wa-averia"/><span class="tsl"></span></label><span class="tl">Notificar averías al administrador automáticamente</span></div>
+        <div class="tw"><label class="tog"><input type="checkbox" id="pref-foto-oblig"/><span class="tsl"></span></label><span class="tl">Requerir foto obligatoria en registro de salida</span></div>
+        <div class="tw"><label class="tog"><input type="checkbox" id="pref-apoyo"/><span class="tsl"></span></label><span class="tl">Permitir solicitudes de apoyo entre coordinadores</span></div>
+        <div class="tw"><label class="tog"><input type="checkbox" id="pref-km"/><span class="tsl"></span></label><span class="tl">Registrar kilometraje obligatorio en salida</span></div>
+      </div>
+      <div style="margin-top:18px">
+        <button class="btn-p" onclick="guardarPrefs()">💾 Guardar preferencias</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ Modal Usuario ══ -->
+<div class="modal" id="modal-u" onclick="if(event.target===this)cerrar('modal-u')">
+  <div class="mbox">
+    <div class="mt" id="titulo-u">Nuevo usuario</div>
+    <input type="hidden" id="u-id"/>
+    <div class="f2">
+      <div class="field"><label>Nombre completo *</label><input type="text" id="u-nombre" placeholder="Ej: Carlos Pérez"/></div>
+      <div class="field"><label>Nombre de usuario *</label><input type="text" id="u-usuario" placeholder="Ej: carlos"/></div>
+    </div>
+    <div class="f2">
+      <div class="field">
+        <label>Rol *</label>
+        <select id="u-rol">
+          <option value="admin">Administrador</option>
+          <option value="driver" selected>Conductor</option>
+          <option value="regional">Coordinador</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Regional asignada</label>
+        <select id="u-regional">
+          <option value="Todas">Todas</option>
+        </select>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="field">
+        <label>Contraseña *</label>
+        <div class="pw"><input type="password" id="u-pass" placeholder="Contraseña"/><button class="eye" onclick="togglePass('u-pass',this)">👁</button></div>
+      </div>
+      <div class="field">
+        <label>Confirmar contraseña *</label>
+        <div class="pw"><input type="password" id="u-pass2" placeholder="Repetir"/><button class="eye" onclick="togglePass('u-pass2',this)">👁</button></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Estado</label>
+      <select id="u-estado">
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+    </div>
+    <div class="ma">
+      <button class="mc" onclick="cerrar('modal-u')">Cancelar</button>
+      <button class="btn-p" onclick="guardarU()">💾 Guardar usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Modal Carroza ══ -->
+<div class="modal" id="modal-c" onclick="if(event.target===this)cerrar('modal-c')">
+  <div class="mbox">
+    <div class="mt" id="titulo-c">Nueva carroza</div>
+    <input type="hidden" id="c-id"/>
+    <div class="f2">
+      <div class="field"><label>Código *</label><input type="text" id="c-codigo" placeholder="Ej: JR-07"/></div>
+      <div class="field"><label>Placa *</label><input type="text" id="c-placa" placeholder="Ej: STU-901"/></div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Descripción *</label><input type="text" id="c-desc" placeholder="Ej: Carroza Barranquilla"/></div>
+      <div class="field">
+        <label>Regional asignada</label>
+        <select id="c-regional">
+          <option value="">Sin asignar</option>
+        </select>
+      </div>
+    </div>
+    <div class="f3">
+      <div class="field"><label>Año del vehículo</label><input type="number" id="c-anio" placeholder="2019" min="1990" max="2030"/></div>
+      <div class="field"><label>Kilometraje actual</label><input type="number" id="c-km" placeholder="54320" min="0"/></div>
+      <div class="field">
+        <label>Estado *</label>
+        <select id="c-estado">
+          <option value="disponible">Disponible</option>
+          <option value="taller">En taller</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Observaciones</label><textarea id="c-obs" placeholder="Notas sobre la carroza..."></textarea></div>
+    <div class="ma">
+      <button class="mc" onclick="cerrar('modal-c')">Cancelar</button>
+      <button class="btn-p" onclick="guardarC()">💾 Guardar carroza</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Modal Regional ══ -->
+<div class="modal" id="modal-r" onclick="if(event.target===this)cerrar('modal-r')">
+  <div class="mbox">
+    <div class="mt" id="titulo-r">Nueva regional</div>
+    <input type="hidden" id="r-id"/>
+    <div class="f2">
+      <div class="field"><label>Nombre de la regional *</label><input type="text" id="r-nombre" placeholder="Ej: Coordinador Barranquilla"/></div>
+      <div class="field"><label>Ciudad *</label><input type="text" id="r-ciudad" placeholder="Ej: Barranquilla, Atlántico"/></div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Coordinador a cargo</label><input type="text" id="r-coord" placeholder="Nombre del coordinador"/></div>
+      <div class="field"><label>Teléfono</label><input type="tel" id="r-tel" placeholder="+57 300 000 0000"/></div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Dirección</label><input type="text" id="r-dir" placeholder="Dirección de la sede"/></div>
+      <div class="field">
+        <label>Estado</label>
+        <select id="r-estado">
+          <option value="activa">Activa</option>
+          <option value="inactiva">Inactiva</option>
+        </select>
+      </div>
+    </div>
+    <div class="ma">
+      <button class="mc" onclick="cerrar('modal-r')">Cancelar</button>
+      <button class="btn-p" onclick="guardarR()">💾 Guardar regional</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Confirm ══ -->
+<div class="cdlg" id="cdlg">
+  <div class="cbox">
+    <h3>⚠️ Confirmar eliminación</h3>
+    <p id="cdlg-msg">¿Estás seguro? Esta acción no se puede deshacer.</p>
+    <div class="cbtns">
+      <button class="mc" style="flex:1;padding:11px;border-radius:9px" onclick="cerrarConfirm()">Cancelar</button>
+      <button class="btn-d" style="flex:1;padding:11px;border-radius:9px;font-size:13px" id="cdlg-ok">✕ Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  BASE DE DATOS LOCAL — localStorage
+// ══════════════════════════════════════════
+
+const DB = {
+  get(key) {
+    try { return JSON.parse(localStorage.getItem('jrapp_' + key)) || null; } catch { return null; }
+  },
+  set(key, val) {
+    localStorage.setItem('jrapp_' + key, JSON.stringify(val));
+  },
+  init() {
+    // Usuarios por defecto si no existen
+    if (!this.get('usuarios')) {
+      this.set('usuarios', [
+        { id:'u1', nombre:'Administrador General', usuario:'admin',    rol:'admin',   regional:'Todas',                pass:'1234', estado:'activo' },
+        { id:'u2', nombre:'Carlos Pérez',           usuario:'conductor',rol:'driver',  regional:'Coordinador Cali',     pass:'1234', estado:'activo' },
+        { id:'u3', nombre:'Andrés Gómez',           usuario:'andres',  rol:'driver',  regional:'Coordinador Medellín', pass:'1234', estado:'activo' },
+        { id:'u4', nombre:'Jorge Ríos',             usuario:'jorge',   rol:'driver',  regional:'Coordinador Bogotá',   pass:'1234', estado:'activo' },
+        { id:'u5', nombre:'Luis Martínez',          usuario:'luis',    rol:'driver',  regional:'Coordinador Cali',     pass:'1234', estado:'activo' },
+        { id:'u6', nombre:'Mario Silva',            usuario:'mario',   rol:'driver',  regional:'Coordinador Pereira',  pass:'1234', estado:'activo' },
+        { id:'u7', nombre:'Coord. Cali',            usuario:'regional',rol:'regional',regional:'Coordinador Cali',     pass:'1234', estado:'activo' },
+      ]);
+    }
+    if (!this.get('carrozas')) {
+      this.set('carrozas', [
+        { id:'c1', codigo:'JR-01', placa:'ABC-123', desc:'Carroza Principal',  regional:'Coordinador Cali',     anio:'2020', km:'54320', estado:'disponible', obs:'' },
+        { id:'c2', codigo:'JR-02', placa:'DEF-456', desc:'Carroza Medellín',  regional:'Coordinador Medellín', anio:'2019', km:'62100', estado:'taller',     obs:'En reparación de frenos' },
+        { id:'c3', codigo:'JR-03', placa:'GHI-789', desc:'Carroza Bogotá',    regional:'Coordinador Bogotá',   anio:'2021', km:'38500', estado:'disponible', obs:'' },
+        { id:'c4', codigo:'JR-04', placa:'JKL-012', desc:'Carroza Armenia',   regional:'Coordinador Armenia',  anio:'2018', km:'78900', estado:'taller',     obs:'Motor en diagnóstico' },
+        { id:'c5', codigo:'JR-05', placa:'MNO-345', desc:'Carroza Pereira',   regional:'Coordinador Pereira',  anio:'2020', km:'45200', estado:'disponible', obs:'' },
+        { id:'c6', codigo:'JR-06', placa:'PQR-678', desc:'Carroza Manizales', regional:'Coordinador Manizales',anio:'2019', km:'51800', estado:'disponible', obs:'' },
+      ]);
+    }
+    if (!this.get('regionales')) {
+      this.set('regionales', [
+        { id:'r1', nombre:'Coordinador Cali',      ciudad:'Cali, Valle del Cauca', coord:'Coord. Cali',      tel:'+57 300 111 2233', dir:'Cra 50 #12-34, Cali',      estado:'activa' },
+        { id:'r2', nombre:'Coordinador Medellín',  ciudad:'Medellín, Antioquia',   coord:'Coord. Medellín',  tel:'+57 300 222 3344', dir:'Calle 80 #45-67, Medellín', estado:'activa' },
+        { id:'r3', nombre:'Coordinador Bogotá',    ciudad:'Bogotá, D.C.',          coord:'Coord. Bogotá',    tel:'+57 300 333 4455', dir:'Av. 68 #23-45, Bogotá',     estado:'activa' },
+        { id:'r4', nombre:'Coordinador Armenia',   ciudad:'Armenia, Quindío',      coord:'Coord. Armenia',   tel:'+57 300 444 5566', dir:'Calle 20 #10-22, Armenia',  estado:'activa' },
+        { id:'r5', nombre:'Coordinador Pereira',   ciudad:'Pereira, Risaralda',    coord:'Coord. Pereira',   tel:'+57 300 555 6677', dir:'Cra 13 #15-20, Pereira',    estado:'activa' },
+        { id:'r6', nombre:'Coordinador Manizales', ciudad:'Manizales, Caldas',     coord:'Coord. Manizales', tel:'+57 300 666 7788', dir:'Calle 50 #22-11, Manizales',estado:'activa' },
+      ]);
+    }
+    if (!this.get('sistema')) {
+      this.set('sistema', {
+        nombre:'Salida de Carrozas J.R.', nit:'', tel:'', mail:'', dir:'',
+        wa1:'', wa2:'',
+        prefs:{ waSalida:true, waAveria:true, fotoOblig:false, apoyo:true, km:true }
+      });
+    }
+  },
+  newId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2,5); }
+};
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+function setTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  document.getElementById('panel-' + t).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  RENDER USUARIOS
+// ══════════════════════════════════════════
+function renderUsuarios() {
+  const list = DB.get('usuarios') || [];
+  const admins  = list.filter(u => u.rol === 'admin').length;
+  const drivers = list.filter(u => u.rol === 'driver').length;
+  const coords  = list.filter(u => u.rol === 'regional').length;
+
+  document.getElementById('stats-u').innerHTML = `
+    <div class="sc"><div class="sn">${admins}</div><div class="sl">Admins</div></div>
+    <div class="sc"><div class="sn">${drivers}</div><div class="sl">Conductores</div></div>
+    <div class="sc"><div class="sn">${coords}</div><div class="sl">Coordinadores</div></div>
+    <div class="sc"><div class="sn">${list.length}</div><div class="sl">Total</div></div>`;
+
+  if (!list.length) {
+    document.getElementById('wrap-u').innerHTML = '<div class="empty"><span>👥</span>No hay usuarios registrados</div>';
+    return;
+  }
+
+  const rolBadge  = { admin:'ba', driver:'bd', regional:'bc' };
+  const rolLabel  = { admin:'Admin', driver:'Conductor', regional:'Coordinador' };
+
+  const rows = list.map(u => `
+    <tr>
+      <td><strong style="color:var(--w)">${esc(u.nombre)}</strong></td>
+      <td style="font-family:monospace;font-size:12px;color:rgba(255,255,255,.6)">${esc(u.usuario)}</td>
+      <td class="hm"><span class="badge ${rolBadge[u.rol]||'ba'}">${rolLabel[u.rol]||u.rol}</span></td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.45)">${esc(u.regional||'—')}</td>
+      <td><span class="badge ${u.estado==='activo'?'bact':'bina'}">${u.estado==='activo'?'Activo':'Inactivo'}</span></td>
+      <td>
+        <div class="acc">
+          <button class="btn-e" onclick="editarU('${u.id}')">✏️ Cambiar</button>
+          ${u.usuario!=='admin'?`<button class="btn-d" onclick="confirmar('¿Eliminar usuario <strong>${esc(u.nombre)}</strong>?<br>Esta acción no se puede deshacer.',()=>eliminarU('${u.id}'))">✕ Quitar</button>`:''}
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('wrap-u').innerHTML = `
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th>Usuario</th><th class="hm">Rol</th><th class="hm">Regional</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ══════════════════════════════════════════
+//  CRUD USUARIOS
+// ══════════════════════════════════════════
+function abrirU() {
+  document.getElementById('titulo-u').textContent = 'Nuevo usuario';
+  document.getElementById('u-id').value = '';
+  ['u-nombre','u-usuario','u-pass','u-pass2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('u-rol').value = 'driver';
+  document.getElementById('u-estado').value = 'activo';
+  poblarSelectRegionales('u-regional');
+  document.getElementById('modal-u').classList.add('open');
+}
+
+function editarU(id) {
+  const u = (DB.get('usuarios')||[]).find(x => x.id === id);
+  if (!u) return;
+  document.getElementById('titulo-u').textContent = 'Editar usuario — ' + u.nombre;
+  document.getElementById('u-id').value     = u.id;
+  document.getElementById('u-nombre').value = u.nombre;
+  document.getElementById('u-usuario').value= u.usuario;
+  document.getElementById('u-rol').value    = u.rol;
+  document.getElementById('u-pass').value   = u.pass;
+  document.getElementById('u-pass2').value  = u.pass;
+  document.getElementById('u-estado').value = u.estado;
+  poblarSelectRegionales('u-regional', u.regional);
+  document.getElementById('modal-u').classList.add('open');
+}
+
+function guardarU() {
+  const id      = document.getElementById('u-id').value;
+  const nombre  = document.getElementById('u-nombre').value.trim();
+  const usuario = document.getElementById('u-usuario').value.trim().toLowerCase();
+  const rol     = document.getElementById('u-rol').value;
+  const regional= document.getElementById('u-regional').value;
+  const pass    = document.getElementById('u-pass').value;
+  const pass2   = document.getElementById('u-pass2').value;
+  const estado  = document.getElementById('u-estado').value;
+
+  if (!nombre || !usuario || !pass) { toast('⚠️ Completa: nombre, usuario y contraseña.','err'); return; }
+  if (pass !== pass2)                { toast('⚠️ Las contraseñas no coinciden.','err'); return; }
+  if (pass.length < 4)               { toast('⚠️ La contraseña debe tener al menos 4 caracteres.','err'); return; }
+
+  let list = DB.get('usuarios') || [];
+
+  // Verificar usuario duplicado (excepto al editar el mismo)
+  const dup = list.find(u => u.usuario === usuario && u.id !== id);
+  if (dup) { toast('⚠️ Ya existe un usuario con ese nombre de usuario.','err'); return; }
+
+  if (id) {
+    // Editar
+    list = list.map(u => u.id === id ? { ...u, nombre, usuario, rol, regional, pass, estado } : u);
+    toast('✅ Usuario actualizado correctamente','ok');
+  } else {
+    // Nuevo
+    list.push({ id: DB.newId(), nombre, usuario, rol, regional, pass, estado });
+    toast('✅ Usuario creado correctamente','ok');
+  }
+
+  DB.set('usuarios', list);
+  cerrar('modal-u');
+  renderUsuarios();
+}
+
+function eliminarU(id) {
+  let list = (DB.get('usuarios')||[]).filter(u => u.id !== id);
+  DB.set('usuarios', list);
+  renderUsuarios();
+  toast('✕ Usuario eliminado','info');
+}
+
+// ══════════════════════════════════════════
+//  RENDER CARROZAS
+// ══════════════════════════════════════════
+function renderCarrozas() {
+  const list = DB.get('carrozas') || [];
+  const total = list.length;
+  const activas = list.filter(c => c.estado === 'disponible').length;
+  const taller  = list.filter(c => c.estado === 'taller').length;
+
+  document.getElementById('stats-c').innerHTML = `
+    <div class="sc"><div class="sn">${total}</div><div class="sl">Total</div></div>
+    <div class="sc"><div class="sn">${activas}</div><div class="sl">Disponibles</div></div>
+    <div class="sc"><div class="sn">${taller}</div><div class="sl">En taller</div></div>`;
+
+  if (!list.length) {
+    document.getElementById('wrap-c').innerHTML = '<div class="empty"><span>🚗</span>No hay carrozas registradas</div>';
+    return;
+  }
+
+  const estBadge = { disponible:'bdis', taller:'btal', inactivo:'bina' };
+  const estLabel = { disponible:'Disponible', taller:'En taller', inactivo:'Inactivo' };
+
+  const rows = list.map(c => `
+    <tr>
+      <td><strong style="color:var(--gold)">${esc(c.codigo)}</strong></td>
+      <td style="color:rgba(255,255,255,.8)">${esc(c.desc)}</td>
+      <td class="hm" style="font-family:monospace;font-size:12px;color:rgba(255,255,255,.5)">${esc(c.placa)}</td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.45)">${esc(c.regional||'—')}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,.45)">${c.km ? Number(c.km).toLocaleString()+' km' : '—'}</td>
+      <td><span class="badge ${estBadge[c.estado]||'bact'}">${estLabel[c.estado]||c.estado}</span></td>
+      <td>
+        <div class="acc">
+          <button class="btn-e" onclick="editarC('${c.id}')">✏️ Cambiar</button>
+          <button class="btn-d" onclick="confirmar('¿Eliminar carroza <strong>${esc(c.codigo)}</strong>?<br>Esta acción no se puede deshacer.',()=>eliminarC('${c.id}'))">✕ Quitar</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('wrap-c').innerHTML = `
+    <table class="tabla">
+      <thead><tr><th>Código</th><th>Descripción</th><th class="hm">Placa</th><th class="hm">Regional</th><th class="hm">Km</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ══════════════════════════════════════════
+//  CRUD CARROZAS
+// ══════════════════════════════════════════
+function abrirC() {
+  document.getElementById('titulo-c').textContent = 'Nueva carroza';
+  document.getElementById('c-id').value = '';
+  ['c-codigo','c-placa','c-desc','c-anio','c-km','c-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('c-estado').value = 'disponible';
+  poblarSelectRegionales('c-regional');
+  document.getElementById('modal-c').classList.add('open');
+}
+
+function editarC(id) {
+  const c = (DB.get('carrozas')||[]).find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('titulo-c').textContent = 'Editar — ' + c.codigo;
+  document.getElementById('c-id').value     = c.id;
+  document.getElementById('c-codigo').value = c.codigo;
+  document.getElementById('c-placa').value  = c.placa;
+  document.getElementById('c-desc').value   = c.desc;
+  document.getElementById('c-anio').value   = c.anio || '';
+  document.getElementById('c-km').value     = c.km || '';
+  document.getElementById('c-estado').value = c.estado;
+  document.getElementById('c-obs').value    = c.obs || '';
+  poblarSelectRegionales('c-regional', c.regional);
+  document.getElementById('modal-c').classList.add('open');
+}
+
+function guardarC() {
+  const id      = document.getElementById('c-id').value;
+  const codigo  = document.getElementById('c-codigo').value.trim().toUpperCase();
+  const placa   = document.getElementById('c-placa').value.trim().toUpperCase();
+  const desc    = document.getElementById('c-desc').value.trim();
+  const regional= document.getElementById('c-regional').value;
+  const anio    = document.getElementById('c-anio').value;
+  const km      = document.getElementById('c-km').value;
+  const estado  = document.getElementById('c-estado').value;
+  const obs     = document.getElementById('c-obs').value.trim();
+
+  if (!codigo || !placa || !desc) { toast('⚠️ Completa: código, placa y descripción.','err'); return; }
+
+  let list = DB.get('carrozas') || [];
+  const dup = list.find(c => c.codigo === codigo && c.id !== id);
+  if (dup) { toast('⚠️ Ya existe una carroza con ese código.','err'); return; }
+
+  if (id) {
+    list = list.map(c => c.id === id ? { ...c, codigo, placa, desc, regional, anio, km, estado, obs } : c);
+    toast('✅ Carroza actualizada correctamente','ok');
+  } else {
+    list.push({ id: DB.newId(), codigo, placa, desc, regional, anio, km, estado, obs });
+    toast('✅ Carroza registrada correctamente','ok');
+  }
+
+  DB.set('carrozas', list);
+  cerrar('modal-c');
+  renderCarrozas();
+}
+
+function eliminarC(id) {
+  DB.set('carrozas', (DB.get('carrozas')||[]).filter(c => c.id !== id));
+  renderCarrozas();
+  toast('✕ Carroza eliminada','info');
+}
+
+// ══════════════════════════════════════════
+//  RENDER REGIONALES
+// ══════════════════════════════════════════
+function renderRegionales() {
+  const list = DB.get('regionales') || [];
+
+  if (!list.length) {
+    document.getElementById('wrap-r').innerHTML = '<div class="empty"><span>📍</span>No hay regionales registradas</div>';
+    return;
+  }
+
+  const rows = list.map(r => `
+    <tr>
+      <td><strong style="color:var(--w)">${esc(r.nombre)}</strong></td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.5)">${esc(r.ciudad)}</td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.5)">${esc(r.coord||'—')}</td>
+      <td class="hm" style="font-family:monospace;font-size:12px;color:rgba(255,255,255,.5)">${esc(r.tel||'—')}</td>
+      <td><span class="badge ${r.estado==='activa'?'bact':'bina'}">${r.estado==='activa'?'Activa':'Inactiva'}</span></td>
+      <td>
+        <div class="acc">
+          <button class="btn-e" onclick="editarR('${r.id}')">✏️ Cambiar</button>
+          <button class="btn-d" onclick="confirmar('¿Eliminar regional <strong>${esc(r.nombre)}</strong>?<br>Esta acción no se puede deshacer.',()=>eliminarR('${r.id}'))">✕ Quitar</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('wrap-r').innerHTML = `
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th class="hm">Ciudad</th><th class="hm">Coordinador</th><th class="hm">Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ══════════════════════════════════════════
+//  CRUD REGIONALES
+// ══════════════════════════════════════════
+function abrirR() {
+  document.getElementById('titulo-r').textContent = 'Nueva regional';
+  document.getElementById('r-id').value = '';
+  ['r-nombre','r-ciudad','r-coord','r-tel','r-dir'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('r-estado').value = 'activa';
+  document.getElementById('modal-r').classList.add('open');
+}
+
+function editarR(id) {
+  const r = (DB.get('regionales')||[]).find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('titulo-r').textContent = 'Editar — ' + r.nombre;
+  document.getElementById('r-id').value     = r.id;
+  document.getElementById('r-nombre').value = r.nombre;
+  document.getElementById('r-ciudad').value = r.ciudad;
+  document.getElementById('r-coord').value  = r.coord  || '';
+  document.getElementById('r-tel').value    = r.tel    || '';
+  document.getElementById('r-dir').value    = r.dir    || '';
+  document.getElementById('r-estado').value = r.estado;
+  document.getElementById('modal-r').classList.add('open');
+}
+
+function guardarR() {
+  const id     = document.getElementById('r-id').value;
+  const nombre = document.getElementById('r-nombre').value.trim();
+  const ciudad = document.getElementById('r-ciudad').value.trim();
+  const coord  = document.getElementById('r-coord').value.trim();
+  const tel    = document.getElementById('r-tel').value.trim();
+  const dir    = document.getElementById('r-dir').value.trim();
+  const estado = document.getElementById('r-estado').value;
+
+  if (!nombre || !ciudad) { toast('⚠️ Completa: nombre y ciudad.','err'); return; }
+
+  let list = DB.get('regionales') || [];
+
+  if (id) {
+    list = list.map(r => r.id === id ? { ...r, nombre, ciudad, coord, tel, dir, estado } : r);
+    toast('✅ Regional actualizada correctamente','ok');
+  } else {
+    list.push({ id: DB.newId(), nombre, ciudad, coord, tel, dir, estado });
+    toast('✅ Regional registrada correctamente','ok');
+  }
+
+  DB.set('regionales', list);
+  cerrar('modal-r');
+  renderRegionales();
+  // Actualizar selects de regional en otros modales
+  poblarSelectRegionales('u-regional');
+  poblarSelectRegionales('c-regional');
+}
+
+function eliminarR(id) {
+  DB.set('regionales', (DB.get('regionales')||[]).filter(r => r.id !== id));
+  renderRegionales();
+  toast('✕ Regional eliminada','info');
+}
+
+// ══════════════════════════════════════════
+//  SISTEMA
+// ══════════════════════════════════════════
+function cargarSistema() {
+  const s = DB.get('sistema') || {};
+  if (s.nombre) document.getElementById('e-nombre').value = s.nombre;
+  if (s.nit)    document.getElementById('e-nit').value    = s.nit;
+  if (s.tel)    document.getElementById('e-tel').value    = s.tel;
+  if (s.mail)   document.getElementById('e-mail').value   = s.mail;
+  if (s.dir)    document.getElementById('e-dir').value    = s.dir;
+  if (s.wa1)    document.getElementById('wa1').value      = s.wa1;
+  if (s.wa2)    document.getElementById('wa2').value      = s.wa2;
+  // Preferencias
+  const p = s.prefs || {};
+  document.getElementById('pref-wa-salida').checked  = p.waSalida  !== false;
+  document.getElementById('pref-wa-averia').checked  = p.waAveria  !== false;
+  document.getElementById('pref-foto-oblig').checked = p.fotoOblig === true;
+  document.getElementById('pref-apoyo').checked      = p.apoyo     !== false;
+  document.getElementById('pref-km').checked         = p.km        !== false;
+}
+
+function guardarSistema() {
+  const s = DB.get('sistema') || {};
+  s.nombre = document.getElementById('e-nombre').value.trim();
+  s.nit    = document.getElementById('e-nit').value.trim();
+  s.tel    = document.getElementById('e-tel').value.trim();
+  s.mail   = document.getElementById('e-mail').value.trim();
+  s.dir    = document.getElementById('e-dir').value.trim();
+  s.wa1    = document.getElementById('wa1').value.trim();
+  s.wa2    = document.getElementById('wa2').value.trim();
+  if (!s.nombre) { toast('⚠️ El nombre de la empresa no puede estar vacío.','err'); return; }
+  DB.set('sistema', s);
+  toast('✅ Información guardada correctamente','ok');
+}
+
+function guardarPrefs() {
+  const s = DB.get('sistema') || {};
+  s.prefs = {
+    waSalida:  document.getElementById('pref-wa-salida').checked,
+    waAveria:  document.getElementById('pref-wa-averia').checked,
+    fotoOblig: document.getElementById('pref-foto-oblig').checked,
+    apoyo:     document.getElementById('pref-apoyo').checked,
+    km:        document.getElementById('pref-km').checked,
+  };
+  DB.set('sistema', s);
+  toast('✅ Preferencias guardadas correctamente','ok');
+}
+
+function cambiarPass() {
+  const p0 = document.getElementById('p0').value;
+  const p1 = document.getElementById('p1').value;
+  const p2 = document.getElementById('p2').value;
+
+  if (!p0 || !p1) { toast('⚠️ Completa todos los campos de contraseña.','err'); return; }
+  if (p1 !== p2)  { toast('⚠️ La nueva contraseña y la confirmación no coinciden.','err'); return; }
+  if (p1.length < 4) { toast('⚠️ La contraseña debe tener al menos 4 caracteres.','err'); return; }
+
+  // Verificar contraseña actual del admin
+  const admin = (DB.get('usuarios')||[]).find(u => u.usuario === 'admin');
+  if (admin && admin.pass !== p0) { toast('⚠️ La contraseña actual es incorrecta.','err'); return; }
+
+  // Actualizar
+  let list = DB.get('usuarios') || [];
+  list = list.map(u => u.usuario === 'admin' ? { ...u, pass: p1 } : u);
+  DB.set('usuarios', list);
+
+  document.getElementById('p0').value = '';
+  document.getElementById('p1').value = '';
+  document.getElementById('p2').value = '';
+  toast('🔐 Contraseña del administrador actualizada','ok');
+}
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function poblarSelectRegionales(selectId, valorActual) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const regionales = DB.get('regionales') || [];
+  const opciones = selectId === 'u-regional'
+    ? ['Todas', ...regionales.map(r => r.nombre)]
+    : ['', ...regionales.map(r => r.nombre)];
+
+  sel.innerHTML = opciones.map(op =>
+    `<option value="${op}" ${op === valorActual ? 'selected' : ''}>${op || '— Sin asignar —'}</option>`
+  ).join('');
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function togglePass(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function cerrar(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Confirm dialog
+let confirmCallback = null;
+function confirmar(msg, cb) {
+  confirmCallback = cb;
+  document.getElementById('cdlg-msg').innerHTML = msg;
+  document.getElementById('cdlg').classList.add('open');
+  document.getElementById('cdlg-ok').onclick = () => {
+    document.getElementById('cdlg').classList.remove('open');
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+  };
+}
+function cerrarConfirm() {
+  document.getElementById('cdlg').classList.remove('open');
+  confirmCallback = null;
+}
+
+function toast(msg, tipo = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + tipo;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3400);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  DB.init();
+  renderUsuarios();
+  renderCarrozas();
+  renderRegionales();
+  cargarSistema();
+});
+</script>
+</body>
+</html>

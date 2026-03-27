@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salida de Carrozas J.R. — Apoyo Regional</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="db.js"></script>
+<style>
+:root{--ink:#16162a;--gold:#c9a84c;--gl:#e8c97a;--w:#f9f9fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--w);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 0% 0%,rgba(201,168,76,.05) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 100% 100%,rgba(92,58,26,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:rgba(22,22,42,.97);backdrop-filter:blur(12px);z-index:100;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--w);display:flex;align-items:center;gap:10px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.db-bar{display:flex;align-items:center;gap:7px;padding:7px 24px;background:rgba(26,92,58,.07);border-bottom:1px solid rgba(80,160,100,.1);font-size:11px;color:rgba(144,212,160,.65);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#90d4a0;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.btn-bk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-bk:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(22,22,42,.85);position:sticky;top:57px;z-index:50;backdrop-filter:blur(12px);}
+.tab{flex:1;padding:13px 10px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:rgba(255,255,255,.6);}
+.notif{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:#c04040;color:#fff;font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle;}
+.page{max-width:780px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+.panel{display:none;}.panel.active{display:block;}
+.pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--w);margin-bottom:4px;}
+.ps{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:24px;}
+.sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;margin-bottom:18px;}
+.sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.sec-t::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.2);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:520px){.f2{grid-template-columns:1fr;}}
+.field{margin-bottom:14px;}.field:last-child{margin-bottom:0;}
+label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:500;margin-bottom:7px;}
+input,select,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,background .2s;appearance:none;}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.2);}
+input:focus,select:focus,textarea:focus{border-color:rgba(201,168,76,.5);background:rgba(255,255,255,.07);}
+select option{background:#16162a;color:#f9f9fc;}
+textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.urgbtns{display:flex;gap:10px;flex-wrap:wrap;}
+.ubtn{flex:1;min-width:90px;padding:11px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;text-align:center;}
+.ubtn.ua{background:rgba(192,64,64,.25);border-color:rgba(220,80,80,.5);color:#f09090;}
+.ubtn.um{background:rgba(92,58,26,.3);border-color:rgba(180,120,60,.5);color:#e8b870;}
+.ubtn.un{background:rgba(26,92,58,.25);border-color:rgba(80,160,100,.5);color:#90d4a0;}
+.cond-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.cond-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;cursor:pointer;transition:all .22s;position:relative;}
+.cond-card:hover{border-color:rgba(201,168,76,.3);background:rgba(255,255,255,.065);transform:translateY(-2px);}
+.cond-card.sel{border-color:rgba(201,168,76,.6);background:rgba(201,168,76,.08);}
+.ccheck{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;}
+.cond-card.sel .ccheck{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.cav{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:8px;}
+.cn{font-size:13px;font-weight:500;color:var(--w);margin-bottom:2px;}
+.ci{font-size:11px;color:rgba(255,255,255,.35);line-height:1.4;margin-bottom:6px;}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;display:inline-block;}
+.bdis{background:rgba(26,92,58,.3);color:#90d4a0;}.boc{background:rgba(92,58,26,.3);color:#e8b870;}.bca{background:rgba(44,74,124,.3);color:#a8c0e8;}
+.btn-p{flex:1;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-p:hover{opacity:.9;transform:translateY(-1px);}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;}
+/* Solicitud card */
+.sol-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:12px;animation:si .3s ease both;}
+@keyframes si{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sol-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.sol-reg{font-size:14px;font-weight:500;color:var(--w);}
+.sol-time{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px;}
+.ub{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500;flex-shrink:0;}
+.ua-b{background:rgba(192,64,64,.25);color:#f09090;}.um-b{background:rgba(92,58,26,.3);color:#e8b870;}.un-b{background:rgba(26,92,58,.25);color:#90d4a0;}
+.sol-ruta{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.55);background:rgba(255,255,255,.04);border-radius:8px;padding:9px 12px;margin-bottom:10px;flex-wrap:wrap;}
+.sol-ruta .arrow{color:var(--gold);font-size:14px;}
+.sol-desc{font-size:12px;color:rgba(255,255,255,.4);line-height:1.6;margin-bottom:12px;}
+.sol-acc{display:flex;gap:10px;}
+.btn-ac{flex:1;padding:10px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:var(--ink);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-ac:hover{opacity:.88;transform:translateY(-1px);}
+.btn-rc{padding:10px 16px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-rc:hover{border-color:rgba(192,64,64,.4);color:#f09090;}
+.aceptada{display:flex;align-items:center;gap:7px;font-size:13px;color:#90d4a0;font-weight:500;background:rgba(26,92,58,.2);border-radius:9px;padding:10px 14px;}
+/* Historial timeline */
+.tl{position:relative;padding-left:22px;}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06);}
+.tl-item{position:relative;margin-bottom:18px;}
+.tl-dot{position:absolute;left:-22px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid;}
+.tl-c{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;}
+.tl-c strong{color:var(--w);display:block;margin-bottom:2px;}
+.tl-c span{font-size:11px;color:rgba(255,255,255,.3);}
+.tl-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
+.s-pen{background:rgba(92,58,26,.3);color:#e8b870;}.s-ac{background:rgba(26,92,58,.3);color:#90d4a0;}.s-comp{background:rgba(44,74,124,.3);color:#a8c0e8;}
+.empty{text-align:center;padding:36px 20px;color:rgba(255,255,255,.22);font-size:13px;}
+.empty span{display:block;font-size:28px;margin-bottom:8px;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);border-radius:12px;padding:13px 22px;font-size:13px;font-weight:500;z-index:200;transition:all .35s cubic-bezier(.22,.8,.36,1);opacity:0;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:rgba(26,92,58,.96);border:1px solid rgba(80,160,100,.5);color:#90d4a0;}
+.toast.err{background:rgba(100,28,28,.96);border:1px solid rgba(192,64,64,.5);color:#f09090;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-brand"><div class="dot"></div><span id="app-nombre">Salida de Carrozas J.R.</span></div>
+  <button class="btn-bk" onclick="history.back()">← Volver</button>
+</div>
+<div class="db-bar"><div class="db-dot"></div>Base de datos local activa</div>
+<div class="tabs">
+  <div class="tab active" onclick="setTab('solicitar')" id="tab-solicitar">📍 Solicitar apoyo</div>
+  <div class="tab" onclick="setTab('conductor')" id="tab-conductor">🚗 Conductor <span class="notif" id="notif-badge">0</span></div>
+  <div class="tab" onclick="setTab('historial')" id="tab-historial">📋 Historial</div>
+</div>
+
+<div class="page">
+
+  <!-- SOLICITAR -->
+  <div class="panel active" id="panel-solicitar">
+    <div class="pt">Solicitar apoyo regional</div>
+    <div class="ps">Pide apoyo a conductores de otras regionales para un traslado urgente.</div>
+    <div class="sec">
+      <div class="sec-t">Datos de la solicitud</div>
+      <div class="f2">
+        <div class="field"><label>Regional solicitante</label><select id="s-origen"><option value="">Seleccionar...</option></select></div>
+        <div class="field"><label>Regional de apoyo</label><select id="s-destino"><option value="">Cualquier regional</option></select></div>
+      </div>
+      <div class="f2">
+        <div class="field"><label>Lugar de recogida</label><input type="text" id="s-orig" placeholder="Ej: Hospital San Juan, Cali"/></div>
+        <div class="field"><label>Lugar de destino</label><input type="text" id="s-dest" placeholder="Ej: Funeraria La Paz, Bogotá"/></div>
+      </div>
+      <div class="f2">
+        <div class="field"><label>Fecha requerida</label><input type="date" id="s-fecha"/></div>
+        <div class="field"><label>Hora requerida</label><input type="time" id="s-hora"/></div>
+      </div>
+      <div class="field">
+        <label>Nivel de urgencia</label>
+        <div class="urgbtns">
+          <button class="ubtn" id="ub-a" onclick="setUrg('alta')">🔴 Alta</button>
+          <button class="ubtn" id="ub-m" onclick="setUrg('media')">🟠 Media</button>
+          <button class="ubtn" id="ub-n" onclick="setUrg('normal')">🟢 Normal</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Detalles adicionales</label><textarea id="s-det" placeholder="Condiciones especiales, tipo de apoyo..."></textarea></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">Conductores disponibles ahora</div>
+      <div class="cond-grid" id="cond-grid"></div>
+    </div>
+    <div class="actions"><button class="btn-p" onclick="enviarSolicitud()">📤 Enviar solicitud de apoyo</button></div>
+  </div>
+
+  <!-- CONDUCTOR -->
+  <div class="panel" id="panel-conductor">
+    <div class="pt">Solicitudes recibidas</div>
+    <div class="ps">Solicitudes de apoyo de otras regionales.</div>
+    <div id="lista-sol"><div class="empty"><span>📩</span>Cargando...</div></div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="panel" id="panel-historial">
+    <div class="pt">Historial de solicitudes</div>
+    <div class="ps">Registro completo de solicitudes enviadas y recibidas.</div>
+    <div class="sec">
+      <div class="sec-t">Todas las solicitudes</div>
+      <div class="tl" id="hist-sol"></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+DB.init();
+let urgencia = '';
+let condsSeleccionados = [];
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sis = DB.getSistema();
+  document.getElementById('app-nombre').textContent = sis.nombre || 'Salida de Carrozas J.R.';
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('s-fecha').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('s-hora').value  = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  cargarRegionales();
+  renderConductores();
+  renderSolicitudes();
+  renderHistorial();
+  actualizarBadge();
+});
+
+function setTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+function cargarRegionales() {
+  const regs = DB.getRegionales();
+  const so = document.getElementById('s-origen');
+  const sd = document.getElementById('s-destino');
+  regs.forEach(r => {
+    const o1 = document.createElement('option'); o1.value = r.nombre; o1.textContent = r.nombre; so.appendChild(o1);
+    const o2 = document.createElement('option'); o2.value = r.nombre; o2.textContent = r.nombre; sd.appendChild(o2);
+  });
+}
+
+function renderConductores() {
+  const conductores = DB.getUsuarios().filter(u => u.rol === 'driver' && u.estado === 'activo');
+  if (!conductores.length) {
+    document.getElementById('cond-grid').innerHTML = '<div class="empty"><span>🚗</span>No hay conductores registrados</div>';
+    return;
+  }
+  document.getElementById('cond-grid').innerHTML = conductores.map(u => `
+    <div class="cond-card" id="cc-${u.id}" onclick="toggleCond('${u.id}',this)">
+      <div class="ccheck">✓</div>
+      <div class="cav">🚗</div>
+      <div class="cn">${DB.esc(u.nombre)}</div>
+      <div class="ci">${DB.esc(u.regional||'Sin regional')}</div>
+      <span class="badge bdis">Disponible</span>
+    </div>`).join('');
+}
+
+function toggleCond(id, card) {
+  card.classList.toggle('sel');
+  if (card.classList.contains('sel')) condsSeleccionados.push(id);
+  else condsSeleccionados = condsSeleccionados.filter(x => x !== id);
+}
+
+function setUrg(u) {
+  urgencia = u;
+  document.getElementById('ub-a').className = 'ubtn' + (u==='alta'?' ua':'');
+  document.getElementById('ub-m').className = 'ubtn' + (u==='media'?' um':'');
+  document.getElementById('ub-n').className = 'ubtn' + (u==='normal'?' un':'');
+}
+
+function enviarSolicitud() {
+  const origen   = document.getElementById('s-origen').value;
+  const orig     = document.getElementById('s-orig').value.trim();
+  const dest     = document.getElementById('s-dest').value.trim();
+  if (!origen || !orig || !dest) { toast('⚠️ Completa regional, origen y destino.','err'); return; }
+
+  const sol = DB.addSolicitud({
+    regionalOrigen: origen,
+    regionalDestino: document.getElementById('s-destino').value || 'Cualquier regional',
+    origen: orig, destino: dest,
+    fecha: document.getElementById('s-fecha').value,
+    hora:  document.getElementById('s-hora').value,
+    urgencia: urgencia || 'media',
+    detalles: document.getElementById('s-det').value,
+    conductores: condsSeleccionados,
+    estadoSol: 'pendiente',
+  });
+
+  renderSolicitudes();
+  renderHistorial();
+  actualizarBadge();
+  toast('📤 Solicitud enviada y registrada','ok');
+
+  // Limpiar
+  document.getElementById('s-orig').value = '';
+  document.getElementById('s-dest').value = '';
+  document.getElementById('s-det').value = '';
+  urgencia = ''; condsSeleccionados = [];
+  ['ub-a','ub-m','ub-n'].forEach(id => document.getElementById(id).className = 'ubtn');
+  document.querySelectorAll('.cond-card').forEach(c => c.classList.remove('sel'));
+}
+
+function renderSolicitudes() {
+  const list = DB.getSolicitudes().filter(s => s.estadoSol === 'pendiente');
+  if (!list.length) {
+    document.getElementById('lista-sol').innerHTML = '<div class="empty"><span>📩</span>No hay solicitudes pendientes</div>';
+    return;
+  }
+  const urgBadge = { alta:'ua-b', media:'um-b', normal:'un-b' };
+  const urgLabel = { alta:'🔴 Alta urgencia', media:'🟠 Urgencia media', normal:'🟢 Normal' };
+  document.getElementById('lista-sol').innerHTML = list.map(s => `
+    <div class="sol-card" id="sol-${s.id}">
+      <div class="sol-hdr">
+        <div><div class="sol-reg">${DB.esc(s.regionalOrigen)}</div><div class="sol-time">${DB.fmtCorta(s.creadoEn)}</div></div>
+        <span class="ub ${urgBadge[s.urgencia]||'um-b'}">${urgLabel[s.urgencia]||'Media'}</span>
+      </div>
+      <div class="sol-ruta"><span>📍 ${DB.esc(s.origen)}</span><span class="arrow">→</span><span>🏁 ${DB.esc(s.destino)}</span></div>
+      <div class="sol-desc">${DB.esc(s.detalles||'Sin detalles adicionales.')}</div>
+      <div class="sol-acc" id="acc-${s.id}">
+        <button class="btn-ac" onclick="aceptarSol('${s.id}')">✓ Aceptar traslado</button>
+        <button class="btn-rc" onclick="rechazarSol('${s.id}')">✕ No disponible</button>
+      </div>
+    </div>`).join('');
+}
+
+function aceptarSol(id) {
+  DB.updSolicitud(id, { estadoSol: 'aceptada' });
+  const acc = document.getElementById('acc-' + id);
+  if (acc) acc.innerHTML = '<div class="aceptada">✓ Aceptaste este traslado — el mapa de seguimiento se activará</div>';
+  actualizarBadge();
+  renderHistorial();
+  toast('✅ Traslado aceptado. La regional fue notificada.','ok');
+}
+
+function rechazarSol(id) {
+  DB.updSolicitud(id, { estadoSol: 'rechazada' });
+  const card = document.getElementById('sol-' + id);
+  if (card) { card.style.opacity='0'; card.style.transform='translateY(-8px)'; card.style.transition='all .3s'; setTimeout(()=>card.remove(),300); }
+  actualizarBadge();
+  renderHistorial();
+  toast('Solicitud descartada.','ok');
+}
+
+function renderHistorial() {
+  const list = DB.getSolicitudes();
+  if (!list.length) {
+    document.getElementById('hist-sol').innerHTML = '<div class="empty"><span>📋</span>No hay solicitudes registradas</div>';
+    return;
+  }
+  const colorMap = { pendiente:'rgba(92,58,26,.3)',  aceptada:'rgba(26,92,58,.3)',  rechazada:'rgba(192,64,64,.2)',  completada:'rgba(44,74,124,.3)' };
+  const borderMap= { pendiente:'#e8b870',            aceptada:'#90d4a0',            rechazada:'#f09090',             completada:'#a8c0e8' };
+  const badgeCls = { pendiente:'badge s-pen',        aceptada:'badge s-ac',         rechazada:'badge boc',           completada:'badge s-comp' };
+  const badgeLbl = { pendiente:'Pendiente',          aceptada:'Aceptada',           rechazada:'Rechazada',           completada:'Completada' };
+  document.getElementById('hist-sol').innerHTML = list.map(s => `
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${colorMap[s.estadoSol]||colorMap.pendiente};border-color:${borderMap[s.estadoSol]||borderMap.pendiente}"></div>
+      <div class="tl-c">
+        <strong>${DB.esc(s.regionalOrigen)} → ${DB.esc(s.regionalDestino)}</strong>
+        ${DB.fmtCorta(s.creadoEn)} · ${DB.esc(s.origen)} → ${DB.esc(s.destino)}
+        <div class="tl-badges"><span class="${badgeCls[s.estadoSol]||'badge s-pen'}">${badgeLbl[s.estadoSol]||s.estadoSol}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+function actualizarBadge() {
+  const n = DB.getSolicitudes().filter(s => s.estadoSol === 'pendiente').length;
+  const b = document.getElementById('notif-badge');
+  b.textContent = n; b.style.display = n > 0 ? '' : 'none';
+}
+
+function toast(msg, tipo='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + tipo;
+  t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 3400);
+}
+</script>
+</body>
+</html>

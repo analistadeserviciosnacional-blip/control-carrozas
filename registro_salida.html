@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salida de Carrozas J.R. — Registro de Salida</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="db.js"></script>
+<style>
+:root{--ink:#16162a;--gold:#c9a84c;--gl:#e8c97a;--w:#f9f9fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--w);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 10%,rgba(201,168,76,.05) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 90% 90%,rgba(26,92,58,.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:rgba(22,22,42,.97);backdrop-filter:blur(12px);z-index:50;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--w);display:flex;align-items:center;gap:10px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.db-bar{display:flex;align-items:center;gap:7px;padding:7px 24px;background:rgba(26,92,58,.07);border-bottom:1px solid rgba(80,160,100,.1);font-size:11px;color:rgba(144,212,160,.65);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#90d4a0;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.btn-bk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-bk:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.page{max-width:760px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+.pt{font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--w);margin-bottom:6px;}
+.ps{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:24px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.sc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;text-align:center;}
+.sn{font-family:'Playfair Display',serif;font-size:26px;color:var(--gold);line-height:1;margin-bottom:3px;}
+.sl{font-size:11px;color:rgba(255,255,255,.32);letter-spacing:.07em;text-transform:uppercase;}
+.sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;margin-bottom:18px;}
+.sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.sec-t::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.2);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:520px){.f2{grid-template-columns:1fr;}}
+.field{margin-bottom:14px;}.field:last-child{margin-bottom:0;}
+label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:500;margin-bottom:7px;}
+input,select,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,background .2s;appearance:none;}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.2);}
+input:focus,select:focus,textarea:focus{border-color:rgba(201,168,76,.5);background:rgba(255,255,255,.07);}
+select option{background:#16162a;color:#f9f9fc;}
+textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.kmw{position:relative;}.kmw input{padding-right:42px;}
+.kmu{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:12px;color:rgba(255,255,255,.3);pointer-events:none;font-weight:500;}
+.km-diff{font-size:12px;color:#90d4a0;margin-top:5px;display:none;}
+.ebtns{display:flex;gap:10px;flex-wrap:wrap;}
+.ebtn{flex:1;min-width:100px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;text-align:center;}
+.ebtn.ar{background:rgba(44,74,124,.3);border-color:rgba(100,140,200,.5);color:#a8c0e8;}
+.ebtn.at{background:rgba(92,58,26,.3);border-color:rgba(180,120,60,.5);color:#e8b870;}
+.ebtn.ad{background:rgba(26,92,58,.3);border-color:rgba(80,160,100,.5);color:#90d4a0;}
+.upl{border:1.5px dashed rgba(255,255,255,.12);border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upl:hover{border-color:rgba(201,168,76,.35);background:rgba(201,168,76,.03);}
+.upl input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upl-icon{font-size:24px;margin-bottom:6px;}
+.upl-lbl{font-size:13px;color:rgba(255,255,255,.4);}
+.upl-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:3px;}
+.thumb-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.thumb-wrap{position:relative;display:inline-block;}
+.thumb-img{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,.1);}
+.thumb-vid{width:72px;height:72px;border-radius:8px;background:rgba(44,74,124,.3);border:1px solid rgba(100,140,200,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;}
+.thumb-vid span{font-size:10px;color:#a8c0e8;margin-top:3px;}
+.thumb-rm{position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#c04040;color:#fff;font-size:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.wa-wrap{display:flex;gap:10px;}
+.wa-pre{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.25);border-radius:10px;padding:11px 14px;color:#4dd97a;font-size:14px;white-space:nowrap;flex-shrink:0;}
+.wa-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.wa-chip{background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:#4dd97a;display:flex;align-items:center;gap:6px;}
+.btn-add-wa{background:none;border:1px dashed rgba(37,211,102,.3);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(77,217,122,.5);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:10px;display:inline-block;}
+.btn-add-wa:hover{border-color:rgba(37,211,102,.55);color:#4dd97a;}
+.prev-box{background:rgba(37,211,102,.03);border:1px solid rgba(37,211,102,.13);border-radius:12px;padding:14px 16px;margin-top:14px;}
+.prev-lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(77,217,122,.55);margin-bottom:8px;}
+.prev-msg{font-size:12px;color:rgba(255,255,255,.6);line-height:1.75;white-space:pre-wrap;font-family:monospace;}
+.actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-p{flex:1;padding:14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-p:hover{opacity:.9;transform:translateY(-1px);}
+.btn-wa{flex:1;padding:14px;border-radius:11px;border:1px solid rgba(37,211,102,.4);background:rgba(37,211,102,.09);color:#4dd97a;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-wa:hover{background:rgba(37,211,102,.16);}
+.hist-item{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.hist-item:last-child{border-bottom:none;}
+.hdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.hi{flex:1;}
+.hi strong{font-size:13px;font-weight:500;color:var(--w);display:block;margin-bottom:2px;}
+.hi span{font-size:12px;color:rgba(255,255,255,.32);}
+.hbadge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;flex-shrink:0;}
+.br{background:rgba(44,74,124,.3);color:#a8c0e8;}
+.bt{background:rgba(92,58,26,.3);color:#e8b870;}
+.bc{background:rgba(26,92,58,.3);color:#90d4a0;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);border-radius:12px;padding:13px 22px;font-size:13px;font-weight:500;z-index:200;transition:all .35s cubic-bezier(.22,.8,.36,1);opacity:0;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:rgba(26,92,58,.96);border:1px solid rgba(80,160,100,.5);color:#90d4a0;}
+.toast.err{background:rgba(100,28,28,.96);border:1px solid rgba(192,64,64,.5);color:#f09090;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand"><div class="dot"></div><span id="app-nombre">Salida de Carrozas J.R.</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:13px;color:rgba(255,255,255,.45)" id="hdr-usuario"></span>
+    <button class="btn-bk" onclick="history.back()">← Volver</button>
+  </div>
+</div>
+<div class="db-bar"><div class="db-dot"></div>Base de datos local activa — datos guardados automáticamente</div>
+
+<div class="page">
+  <div class="pt">Registrar salida de carroza</div>
+  <div class="ps">Completa los datos. El registro se guarda automáticamente y puedes enviar reporte por WhatsApp.</div>
+
+  <div class="stats">
+    <div class="sc"><div class="sn" id="cnt-activas">0</div><div class="sl">Activas hoy</div></div>
+    <div class="sc"><div class="sn" id="cnt-comp">0</div><div class="sl">Completadas</div></div>
+    <div class="sc"><div class="sn" id="cnt-total">0</div><div class="sl">Total traslados</div></div>
+  </div>
+
+  <!-- Datos del traslado -->
+  <div class="sec">
+    <div class="sec-t">Datos del traslado</div>
+    <div class="f2">
+      <div class="field">
+        <label>Carroza *</label>
+        <select id="sel-carroza" onchange="actualizarPreview()"><option value="">Seleccionar...</option></select>
+      </div>
+      <div class="field">
+        <label>Conductor *</label>
+        <select id="sel-conductor" onchange="actualizarPreview()"><option value="">Seleccionar...</option></select>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Fecha de salida</label><input type="date" id="fecha" onchange="actualizarPreview()"/></div>
+      <div class="field"><label>Hora de salida</label><input type="time" id="hora" onchange="actualizarPreview()"/></div>
+    </div>
+    <div class="f2">
+      <div class="field">
+        <label>Kilometraje de salida *</label>
+        <div class="kmw"><input type="number" id="km-sal" min="0" placeholder="Ej: 54320" oninput="calcKm();actualizarPreview()"/><span class="kmu">km</span></div>
+      </div>
+      <div class="field">
+        <label>Kilometraje de llegada</label>
+        <div class="kmw"><input type="number" id="km-lle" min="0" placeholder="Al finalizar" oninput="calcKm();actualizarPreview()"/><span class="kmu">km</span></div>
+        <div class="km-diff" id="km-diff"></div>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="field"><label>Lugar de recogida *</label><input type="text" id="origen" placeholder="Ej: Hospital San Juan, Cali" oninput="actualizarPreview()"/></div>
+      <div class="field"><label>Lugar de destino *</label><input type="text" id="destino" placeholder="Ej: Funeraria La Paz, Bogotá" oninput="actualizarPreview()"/></div>
+    </div>
+    <div class="field"><label>Nombre del fallecido</label><input type="text" id="fallecido" placeholder="Nombre completo" oninput="actualizarPreview()"/></div>
+    <div class="field" style="margin-top:4px">
+      <label>Estado del traslado</label>
+      <div class="ebtns">
+        <button class="ebtn" id="ebtn-r" onclick="setEstado('recogida')">🔵 En recogida</button>
+        <button class="ebtn" id="ebtn-t" onclick="setEstado('traslado')">🟠 En traslado</button>
+        <button class="ebtn" id="ebtn-d" onclick="setEstado('disponible')">🟢 Disponible</button>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px"><label>Observaciones</label><textarea id="obs" placeholder="Detalles adicionales..." oninput="actualizarPreview()"></textarea></div>
+  </div>
+
+  <!-- Fotos/Video -->
+  <div class="sec">
+    <div class="sec-t">Evidencia fotográfica</div>
+    <div class="f2">
+      <div class="field">
+        <label>Fotos de salida</label>
+        <div class="upl"><input type="file" accept="image/*" multiple onchange="addFotos(event)"/>
+          <div class="upl-icon">📷</div>
+          <div class="upl-lbl">Toca para subir fotos</div>
+          <div class="upl-sub">JPG, PNG — máx. 10</div>
+        </div>
+        <div class="thumb-grid" id="fotos-grid"></div>
+      </div>
+      <div class="field">
+        <label>Video (opcional)</label>
+        <div class="upl"><input type="file" accept="video/*" onchange="addVideo(event)"/>
+          <div class="upl-icon">🎥</div>
+          <div class="upl-lbl">Toca para subir video</div>
+          <div class="upl-sub">MP4, MOV — máx. 1</div>
+        </div>
+        <div class="thumb-grid" id="video-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp -->
+  <div class="sec">
+    <div class="sec-t">Reporte por WhatsApp</div>
+    <div class="field">
+      <label>Agregar número</label>
+      <div class="wa-wrap">
+        <div class="wa-pre">🇨🇴 +57</div>
+        <input type="tel" id="wa-inp" placeholder="300 123 4567" maxlength="14" onkeydown="if(event.key==='Enter'){addWA();event.preventDefault()}"/>
+      </div>
+    </div>
+    <div class="wa-chips" id="wa-chips"></div>
+    <button class="btn-add-wa" onclick="addWA()">+ Agregar número</button>
+    <div class="prev-box">
+      <div class="prev-lbl">Vista previa del mensaje</div>
+      <div class="prev-msg" id="prev-msg">Completa los datos para ver el mensaje...</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-p" onclick="registrarSalida()">✓ Registrar salida</button>
+    <button class="btn-wa" onclick="enviarWA()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.134.558 4.133 1.535 5.862L.057 23.272a.75.75 0 0 0 .916.964l5.503-1.442A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22.5c-2.033 0-3.93-.546-5.563-1.498l-.396-.235-4.104 1.076 1.107-4.02-.258-.415A10.443 10.443 0 0 1 1.5 12C1.5 6.201 6.201 1.5 12 1.5S22.5 6.201 22.5 12 17.799 22.5 12 22.5z"/></svg>
+      Enviar por WhatsApp
+    </button>
+  </div>
+
+  <!-- Historial -->
+  <div class="sec" style="margin-top:28px">
+    <div class="sec-t">Últimas salidas registradas</div>
+    <div id="historial"><div style="text-align:center;padding:24px;color:rgba(255,255,255,.25);font-size:13px">Cargando...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+DB.init();
+let estadoActual = '';
+let numerosWA = [];
+let fotosData = [];
+let videoNombre = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  // Nombre sistema
+  const sis = DB.getSistema();
+  document.getElementById('app-nombre').textContent = sis.nombre || 'Salida de Carrozas J.R.';
+  if (sis.wa1) numerosWA = [sis.wa1.replace(/\D/g,'').replace(/^57/,'')];
+
+  // Sesión
+  const sess = sessionStorage.getItem('jrapp_session');
+  if (sess) {
+    const s = JSON.parse(sess);
+    document.getElementById('hdr-usuario').textContent = s.nombre;
+  }
+
+  // Fecha/hora actuales
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('fecha').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('hora').value  = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  cargarSelects();
+  renderStats();
+  renderHistorial();
+  renderWAChips();
+  actualizarPreview();
+});
+
+function cargarSelects() {
+  // Carrozas disponibles
+  const selC = document.getElementById('sel-carroza');
+  DB.getCarrozas().filter(c => c.estado === 'disponible').forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.codigo; o.textContent = `${c.codigo} — ${c.desc}`;
+    selC.appendChild(o);
+  });
+  // Conductores
+  const selD = document.getElementById('sel-conductor');
+  DB.getUsuarios().filter(u => u.rol === 'driver' && u.estado === 'activo').forEach(u => {
+    const o = document.createElement('option');
+    o.value = u.nombre; o.textContent = u.nombre;
+    selD.appendChild(o);
+  });
+}
+
+function renderStats() {
+  const hoy = new Date().toDateString();
+  const traslados = DB.getTraslados();
+  const activos = traslados.filter(t => new Date(t.creadoEn).toDateString() === hoy && t.estado !== 'disponible').length;
+  const comp    = traslados.filter(t => new Date(t.creadoEn).toDateString() === hoy && t.estado === 'disponible').length;
+  document.getElementById('cnt-activas').textContent = activos;
+  document.getElementById('cnt-comp').textContent    = comp;
+  document.getElementById('cnt-total').textContent   = traslados.length;
+}
+
+function renderHistorial() {
+  const lista = DB.getTraslados().slice(0, 10);
+  if (!lista.length) {
+    document.getElementById('historial').innerHTML = '<div style="text-align:center;padding:24px;color:rgba(255,255,255,.25);font-size:13px">No hay traslados registrados aún</div>';
+    return;
+  }
+  const colorMap = { recogida:'#a8c0e8', traslado:'#e8b870', disponible:'#90d4a0' };
+  const labelMap = { recogida:'En recogida', traslado:'En traslado', disponible:'Completado' };
+  const badgeMap = { recogida:'br', traslado:'bt', disponible:'bc' };
+  document.getElementById('historial').innerHTML = lista.map(t => `
+    <div class="hist-item">
+      <div class="hdot" style="background:${colorMap[t.estado]||'#888'}"></div>
+      <div class="hi">
+        <strong>${DB.esc(t.carroza)} — ${DB.esc(t.origen)} → ${DB.esc(t.destino)}</strong>
+        <span>${DB.esc(t.conductor)} · ${DB.fmtCorta(t.creadoEn)}${t.kmSalida?' · Salida: '+Number(t.kmSalida).toLocaleString()+' km':''}</span>
+      </div>
+      <span class="hbadge ${badgeMap[t.estado]||'bc'}">${labelMap[t.estado]||t.estado}</span>
+    </div>`).join('');
+}
+
+function setEstado(e) {
+  estadoActual = e;
+  document.getElementById('ebtn-r').className = 'ebtn' + (e==='recogida'?' ar':'');
+  document.getElementById('ebtn-t').className = 'ebtn' + (e==='traslado'?' at':'');
+  document.getElementById('ebtn-d').className = 'ebtn' + (e==='disponible'?' ad':'');
+  actualizarPreview();
+}
+
+function calcKm() {
+  const s = parseInt(document.getElementById('km-sal').value);
+  const l = parseInt(document.getElementById('km-lle').value);
+  const el = document.getElementById('km-diff');
+  if (!isNaN(s) && !isNaN(l) && l > s) {
+    el.textContent = `Recorrido: ${(l-s).toLocaleString()} km`;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function addFotos(e) {
+  Array.from(e.target.files).slice(0, 10 - fotosData.length).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    const r = new FileReader();
+    r.onload = ev => { fotosData.push({ name: f.name, src: ev.target.result }); renderFotos(); };
+    r.readAsDataURL(f);
+  });
+}
+
+function renderFotos() {
+  document.getElementById('fotos-grid').innerHTML = fotosData.map((f,i) =>
+    `<div class="thumb-wrap"><img class="thumb-img" src="${f.src}"/><button class="thumb-rm" onclick="fotosData.splice(${i},1);renderFotos()">×</button></div>`
+  ).join('');
+  actualizarPreview();
+}
+
+function addVideo(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  videoNombre = f.name;
+  document.getElementById('video-grid').innerHTML =
+    `<div class="thumb-wrap"><div class="thumb-vid">🎥<span>${f.name.substring(0,12)}</span></div><button class="thumb-rm" onclick="videoNombre=null;document.getElementById('video-grid').innerHTML=''">×</button></div>`;
+  actualizarPreview();
+}
+
+function addWA() {
+  const n = document.getElementById('wa-inp').value.replace(/\D/g,'');
+  if (n.length >= 10 && !numerosWA.includes(n)) { numerosWA.push(n); renderWAChips(); actualizarPreview(); }
+  document.getElementById('wa-inp').value = '';
+}
+
+function renderWAChips() {
+  document.getElementById('wa-chips').innerHTML = numerosWA.map(n =>
+    `<div class="wa-chip">📱 +57 ${n.slice(0,3)} ${n.slice(3,6)} ${n.slice(6)}<span style="cursor:pointer;color:rgba(77,217,122,.5);font-size:14px;margin-left:4px" onclick="numerosWA=numerosWA.filter(x=>x!=='${n}');renderWAChips();actualizarPreview()">×</span></div>`
+  ).join('');
+}
+
+function generarMensaje() {
+  const carroza   = document.getElementById('sel-carroza').value  || '—';
+  const conductor = document.getElementById('sel-conductor').value || '—';
+  const fecha     = document.getElementById('fecha').value         || '—';
+  const hora      = document.getElementById('hora').value          || '—';
+  const kmSal     = document.getElementById('km-sal').value        || '—';
+  const kmLle     = document.getElementById('km-lle').value        || 'Pendiente';
+  const origen    = document.getElementById('origen').value        || '—';
+  const destino   = document.getElementById('destino').value       || '—';
+  const fallecido = document.getElementById('fallecido').value     || '—';
+  const obs       = document.getElementById('obs').value;
+  const estado    = estadoActual ? {recogida:'🔵 En recogida',traslado:'🟠 En traslado',disponible:'🟢 Disponible'}[estadoActual] : '—';
+  const sis       = DB.getSistema();
+  const kmRec     = (kmSal!=='—' && kmLle!=='Pendiente') ? ` (${(parseInt(kmLle)-parseInt(kmSal)).toLocaleString()} km recorridos)` : '';
+  let m = `🚗 *${sis.nombre||'SALIDA DE CARROZAS J.R.'}*\n━━━━━━━━━━━━━━━━━━\n`;
+  m += `🔖 Carroza: ${carroza}\n👤 Conductor: ${conductor}\n📅 Fecha: ${fecha}  🕐 Hora: ${hora}\n`;
+  m += `━━━━━━━━━━━━━━━━━━\n📍 Recogida: ${origen}\n🏁 Destino: ${destino}\n`;
+  m += `🙏 Fallecido: ${fallecido}\n📊 Estado: ${estado}\n`;
+  m += `🛣 Km salida: ${kmSal} km\n🏁 Km llegada: ${kmLle}${kmRec}\n`;
+  if (fotosData.length) m += `📷 Fotos: ${fotosData.length}\n`;
+  if (videoNombre)      m += `🎥 Video adjunto\n`;
+  if (obs)              m += `📝 Obs: ${obs}\n`;
+  m += `━━━━━━━━━━━━━━━━━━\n_Reporte automático_`;
+  return m;
+}
+
+function actualizarPreview() {
+  document.getElementById('prev-msg').textContent = generarMensaje();
+}
+
+// Escuchar todos los inputs
+['sel-carroza','sel-conductor','fecha','hora','km-sal','km-lle','origen','destino','fallecido','obs'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) { el.addEventListener('input', actualizarPreview); el.addEventListener('change', actualizarPreview); }
+});
+
+function registrarSalida() {
+  const carroza   = document.getElementById('sel-carroza').value.trim();
+  const conductor = document.getElementById('sel-conductor').value.trim();
+  const origen    = document.getElementById('origen').value.trim();
+  const destino   = document.getElementById('destino').value.trim();
+  const kmSal     = document.getElementById('km-sal').value;
+
+  if (!carroza || !conductor || !origen || !destino || !kmSal) {
+    toast('⚠️ Completa: carroza, conductor, origen, destino y km de salida.','err'); return;
+  }
+
+  const t = DB.addTraslado({
+    carroza, conductor, origen, destino,
+    fallecido: document.getElementById('fallecido').value,
+    fecha:     document.getElementById('fecha').value,
+    hora:      document.getElementById('hora').value,
+    kmSalida:  kmSal,
+    kmLlegada: document.getElementById('km-lle').value,
+    estado:    estadoActual || 'recogida',
+    obs:       document.getElementById('obs').value,
+    fotos:     fotosData.length,
+    video:     videoNombre || null,
+  });
+
+  renderStats();
+  renderHistorial();
+  toast('✅ Salida registrada y guardada correctamente','ok');
+
+  // Auto-enviar WA si está configurado
+  const sis = DB.getSistema();
+  if (sis.prefs && sis.prefs.waSalida && numerosWA.length > 0) {
+    setTimeout(() => enviarWA(), 600);
+  }
+}
+
+function enviarWA() {
+  if (!numerosWA.length) { toast('⚠️ Agrega al menos un número de WhatsApp.','err'); return; }
+  const msg = encodeURIComponent(generarMensaje());
+  window.open(`https://wa.me/57${numerosWA[0]}?text=${msg}`, '_blank');
+  numerosWA.slice(1).forEach((n,i) => setTimeout(() => window.open(`https://wa.me/57${n}?text=${msg}`,'_blank'), (i+1)*700));
+  toast('📱 Abriendo WhatsApp...','ok');
+}
+
+function toast(msg, tipo='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + tipo;
+  t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 3400);
+}
+</script>
+</body>
+</html>

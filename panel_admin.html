@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salida de Carrozas J.R. — Panel Administrador</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="db.js"></script>
+<style>
+:root{--ink:#16162a;--gold:#c9a84c;--gl:#e8c97a;--w:#f9f9fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--w);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 0% 0%,rgba(201,168,76,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 100% 100%,rgba(44,74,124,.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:rgba(22,22,42,.97);backdrop-filter:blur(12px);z-index:100;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--w);display:flex;align-items:center;gap:10px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.db-bar{display:flex;align-items:center;gap:7px;padding:7px 24px;background:rgba(26,92,58,.07);border-bottom:1px solid rgba(80,160,100,.1);font-size:11px;color:rgba(144,212,160,.65);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#90d4a0;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.a-badge{background:rgba(44,74,124,.3);border:1px solid rgba(100,140,200,.3);color:#a8c0e8;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;}
+.btn-bk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-bk:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(22,22,42,.85);position:sticky;top:57px;z-index:50;backdrop-filter:blur(12px);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:100px;padding:13px 8px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:rgba(255,255,255,.6);}
+.page{max-width:1000px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+.panel{display:none;animation:fi .25s ease;}.panel.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--w);margin-bottom:4px;}
+.ps{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:22px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-bottom:24px;}
+.sc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px;text-align:center;}
+.sn{font-family:'Playfair Display',serif;font-size:30px;color:var(--gold);line-height:1;margin-bottom:5px;}
+.sl{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;}
+.sd{font-size:11px;margin-top:5px;font-weight:500;}
+.sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;margin-bottom:18px;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.st{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;}
+.sa{font-size:12px;color:rgba(255,255,255,.4);cursor:pointer;transition:color .2s;}
+.sa:hover{color:var(--gold);}
+.tabla{width:100%;border-collapse:collapse;}
+.tabla th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:500;padding:0 10px 12px;text-align:left;}
+.tabla td{padding:11px 10px;border-top:1px solid rgba(255,255,255,.05);font-size:13px;color:rgba(255,255,255,.75);vertical-align:middle;}
+.tabla tr:hover td{background:rgba(255,255,255,.025);}
+.tabla tr[onclick]{cursor:pointer;}
+@media(max-width:600px){.hm{display:none;}}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;display:inline-block;white-space:nowrap;}
+.bt{background:rgba(92,58,26,.3);color:#e8b870;}.br{background:rgba(44,74,124,.3);color:#a8c0e8;}
+.bdis{background:rgba(26,92,58,.25);color:#90d4a0;}.bll{background:rgba(201,168,76,.2);color:var(--gl);}
+.bcomp{background:rgba(26,92,58,.2);color:#90d4a0;}.btal{background:rgba(92,58,26,.3);color:#e8b870;}
+.bg{background:rgba(192,64,64,.25);color:#f09090;}.bm{background:rgba(92,58,26,.3);color:#e8b870;}.bl{background:rgba(26,92,58,.25);color:#90d4a0;}
+.mini-chart{display:flex;align-items:flex-end;gap:5px;height:44px;margin-top:14px;}
+.mbar{flex:1;border-radius:3px 3px 0 0;transition:height .5s ease;}
+.clbls{display:flex;gap:5px;margin-top:4px;}
+.clbl{flex:1;font-size:9px;color:rgba(255,255,255,.25);text-align:center;letter-spacing:.05em;}
+.cond-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.cond-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;}
+.ctop{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.cav{width:38px;height:38px;border-radius:50%;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.cn{font-size:14px;font-weight:500;color:var(--w);}
+.cr{font-size:11px;color:rgba(255,255,255,.35);margin-top:1px;}
+.cstats{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);}
+.cstat{text-align:center;flex:1;}
+.csn{font-size:16px;font-weight:500;color:var(--gold);}
+.csl{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px;}
+.reg-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:17px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+.ri{width:42px;height:42px;border-radius:12px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.rinfo{flex:1;}
+.rn{font-size:14px;font-weight:500;color:var(--w);margin-bottom:3px;}
+.rd{font-size:12px;color:rgba(255,255,255,.35);}
+.rstats{display:flex;gap:18px;text-align:center;}
+.rsn{font-size:18px;font-weight:500;color:var(--gold);font-family:'Playfair Display',serif;}
+.rsl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;}
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;}
+.modal.open{display:flex;}
+.mbox{background:#1c1c34;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px;width:100%;max-width:480px;animation:fu .3s ease;max-height:90vh;overflow-y:auto;}
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.mt{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:18px;color:var(--w);}
+.mrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;}
+.mrow:last-child{border-bottom:none;}
+.mk{color:rgba(255,255,255,.35);font-size:11px;text-transform:uppercase;letter-spacing:.1em;}
+.mv{color:var(--w);font-weight:500;}
+.mv.gold{color:var(--gold);}
+.mact{display:flex;gap:10px;margin-top:18px;}
+.mc{flex:1;padding:11px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+.btn-p{flex:1;padding:11px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:var(--ink);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-p:hover{opacity:.88;}
+.btn-wa{padding:11px 18px;border-radius:9px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.08);color:#4dd97a;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.empty{text-align:center;padding:36px 20px;color:rgba(255,255,255,.22);font-size:13px;}
+.empty span{display:block;font-size:28px;margin-bottom:8px;}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.fbtn{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.fbtn.active{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.4);color:var(--gl);}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-brand"><div class="dot"></div><span id="app-nombre">Salida de Carrozas J.R.</span></div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="a-badge">🏢 Administrador</span>
+    <button class="btn-bk" onclick="history.back()">← Salir</button>
+  </div>
+</div>
+<div class="db-bar"><div class="db-dot"></div>Base de datos local activa — datos en tiempo real</div>
+<div class="tabs">
+  <div class="tab active" onclick="setTab('resumen')"     id="tab-resumen">📊 Resumen</div>
+  <div class="tab"        onclick="setTab('traslados')"   id="tab-traslados">🚗 Traslados</div>
+  <div class="tab"        onclick="setTab('conductores')" id="tab-conductores">👥 Conductores</div>
+  <div class="tab"        onclick="setTab('regionales')"  id="tab-regionales">📍 Regionales</div>
+</div>
+
+<div class="page">
+
+  <!-- RESUMEN -->
+  <div class="panel active" id="panel-resumen">
+    <div class="pt">Panel de administración</div>
+    <div class="ps" id="fecha-hoy"></div>
+    <div class="stats" id="stats-resumen"></div>
+    <div class="sec">
+      <div class="sh"><div class="st">Actividad semanal (traslados)</div></div>
+      <div class="mini-chart" id="chart-bars"></div>
+      <div class="clbls" id="chart-labels"></div>
+    </div>
+    <div class="sec">
+      <div class="sh">
+        <div class="st">Traslados activos ahora</div>
+        <span class="sa" onclick="setTab('traslados')">Ver todos →</span>
+      </div>
+      <div id="tabla-activos"></div>
+    </div>
+    <div class="sec">
+      <div class="sh">
+        <div class="st">Averías en taller</div>
+        <span class="sa" onclick="location.href='averias_mantenimiento.html'">Ver averías →</span>
+      </div>
+      <div id="tabla-averias"></div>
+    </div>
+  </div>
+
+  <!-- TRASLADOS -->
+  <div class="panel" id="panel-traslados">
+    <div class="pt">Todos los traslados</div>
+    <div class="ps">Historial completo. Haz clic en una fila para ver el detalle.</div>
+    <div class="filtros">
+      <button class="fbtn active" onclick="filtrar(this,'todos')">Todos</button>
+      <button class="fbtn" onclick="filtrar(this,'recogida')">En recogida</button>
+      <button class="fbtn" onclick="filtrar(this,'traslado')">En traslado</button>
+      <button class="fbtn" onclick="filtrar(this,'disponible')">Completados</button>
+    </div>
+    <div class="sec" style="padding:0 0 4px"><div id="tabla-traslados"></div></div>
+  </div>
+
+  <!-- CONDUCTORES -->
+  <div class="panel" id="panel-conductores">
+    <div class="pt">Conductores</div>
+    <div class="ps">Estado actual y estadísticas de cada conductor.</div>
+    <div class="cond-grid" id="cond-grid"></div>
+  </div>
+
+  <!-- REGIONALES -->
+  <div class="panel" id="panel-regionales">
+    <div class="pt">Regionales</div>
+    <div class="ps">Estado operativo de cada sede.</div>
+    <div id="lista-regionales"></div>
+  </div>
+
+</div>
+
+<!-- Modal detalle traslado -->
+<div class="modal" id="modal-t" onclick="if(event.target===this)document.getElementById('modal-t').classList.remove('open')">
+  <div class="mbox">
+    <div class="mt" id="mt-titulo">Detalle del traslado</div>
+    <div id="mt-contenido"></div>
+    <div class="mact">
+      <button class="mc" onclick="document.getElementById('modal-t').classList.remove('open')">Cerrar</button>
+      <button class="btn-p" onclick="enviarWATraslado()">📱 WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<script>
+DB.init();
+let trasladoActual = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sis = DB.getSistema();
+  document.getElementById('app-nombre').textContent = sis.nombre || 'Salida de Carrozas J.R.';
+  document.getElementById('fecha-hoy').textContent = 'Hoy, ' + new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderResumen();
+  renderTraslados('todos');
+  renderConductores();
+  renderRegionales();
+});
+
+function setTab(t) {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+function renderResumen() {
+  const hoy = new Date().toDateString();
+  const tr  = DB.getTraslados();
+  const av  = DB.getAverias();
+  const sol = DB.getSolicitudes();
+  const cond= DB.getUsuarios().filter(u=>u.rol==='driver'&&u.estado==='activo');
+
+  const activos = tr.filter(t=>new Date(t.creadoEn).toDateString()===hoy&&t.estado!=='disponible').length;
+  const comp    = tr.filter(t=>new Date(t.creadoEn).toDateString()===hoy&&t.estado==='disponible').length;
+  const enTaller= av.filter(a=>a.estadoTaller&&a.estadoTaller!=='listo').length;
+  const pendSol = sol.filter(s=>s.estadoSol==='pendiente').length;
+
+  document.getElementById('stats-resumen').innerHTML = `
+    <div class="sc"><div class="sn">${activos}</div><div class="sl">Activos hoy</div><div class="sd" style="color:#e8b870">▲ en curso</div></div>
+    <div class="sc"><div class="sn">${comp}</div><div class="sl">Completados hoy</div></div>
+    <div class="sc"><div class="sn">${cond.length}</div><div class="sl">Conductores</div><div class="sd" style="color:rgba(255,255,255,.3)">activos</div></div>
+    <div class="sc"><div class="sn">${DB.getRegionales().length}</div><div class="sl">Regionales</div></div>
+    <div class="sc"><div class="sn">${enTaller}</div><div class="sl">En taller</div><div class="sd" style="color:#f09090">averías</div></div>
+    <div class="sc"><div class="sn">${pendSol}</div><div class="sl">Solicitudes</div><div class="sd" style="color:#e8b870">pendientes</div></div>`;
+
+  // Chart semanal
+  const dias = ['L','M','X','J','V','S','D'];
+  const vals = [0,0,0,0,0,0,0];
+  tr.forEach(t => {
+    const d = new Date(t.creadoEn);
+    const dayIdx = (d.getDay()+6)%7;
+    vals[dayIdx]++;
+  });
+  const max = Math.max(...vals, 1);
+  const chart = document.getElementById('chart-bars');
+  const labels = document.getElementById('chart-labels');
+  chart.innerHTML = '';
+  labels.innerHTML = '';
+  const hoyIdx = (new Date().getDay()+6)%7;
+  vals.forEach((v,i) => {
+    const bar = document.createElement('div');
+    bar.className='mbar';
+    bar.style.height=(v/max*100)+'%';
+    bar.style.background=i===hoyIdx?'linear-gradient(to top,var(--gold),var(--gl))':'rgba(201,168,76,.22)';
+    bar.title=`${dias[i]}: ${v} traslados`;
+    chart.appendChild(bar);
+    const lbl=document.createElement('div');
+    lbl.className='clbl';lbl.textContent=dias[i];
+    labels.appendChild(lbl);
+  });
+
+  // Tabla activos
+  const actList = tr.filter(t=>t.estado!=='disponible').slice(0,5);
+  if(!actList.length) {
+    document.getElementById('tabla-activos').innerHTML='<div class="empty"><span>🚗</span>No hay traslados activos</div>';
+  } else {
+    const estBadge={recogida:'br',traslado:'bt',disponible:'bcomp'};
+    const estLabel={recogida:'🔵 Recogida',traslado:'🟠 Traslado',disponible:'✅ Completado'};
+    document.getElementById('tabla-activos').innerHTML=`<table class="tabla">
+      <thead><tr><th>Carroza</th><th>Conductor</th><th class="hm">Origen → Destino</th><th>Estado</th><th>Hora</th></tr></thead>
+      <tbody>${actList.map(t=>`<tr onclick="abrirDetalle('${t.id}')">
+        <td><strong style="color:var(--gold)">${DB.esc(t.carroza)}</strong></td>
+        <td>${DB.esc(t.conductor)}</td>
+        <td class="hm" style="font-size:12px;color:rgba(255,255,255,.45)">${DB.esc(t.origen.substring(0,20))} → ${DB.esc(t.destino.substring(0,20))}</td>
+        <td><span class="badge ${estBadge[t.estado]||'br'}">${estLabel[t.estado]||t.estado}</span></td>
+        <td style="font-size:12px;color:rgba(255,255,255,.4)">${t.hora||'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  }
+
+  // Tabla averías
+  const avList = av.filter(a=>a.estadoTaller&&a.estadoTaller!=='listo').slice(0,3);
+  if(!avList.length) {
+    document.getElementById('tabla-averias').innerHTML='<div class="empty"><span>🔧</span>No hay averías activas en taller</div>';
+  } else {
+    const gb={leve:'bl',media:'bm',grave:'bg'};
+    const gl={leve:'🟢 Leve',media:'🟠 Media',grave:'🔴 Grave'};
+    document.getElementById('tabla-averias').innerHTML=`<table class="tabla">
+      <thead><tr><th>Carroza</th><th>Tipo</th><th class="hm">Conductor</th><th>Gravedad</th><th>Estado</th></tr></thead>
+      <tbody>${avList.map(a=>`<tr>
+        <td><strong style="color:var(--gold)">${DB.esc(a.carroza)}</strong></td>
+        <td style="font-size:12px">${DB.esc(a.tipo)}</td>
+        <td class="hm" style="font-size:12px;color:rgba(255,255,255,.45)">${DB.esc(a.conductor)}</td>
+        <td><span class="badge ${gb[a.gravedad]||'bm'}">${gl[a.gravedad]||'Media'}</span></td>
+        <td style="font-size:12px;color:#a8c0e8">${a.estadoTaller||'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  }
+}
+
+function renderTraslados(filtro) {
+  let list = DB.getTraslados();
+  if(filtro!=='todos') list = list.filter(t=>t.estado===filtro);
+  if(!list.length){
+    document.getElementById('tabla-traslados').innerHTML='<div class="empty" style="padding:36px 20px"><span>🚗</span>No hay traslados'+( filtro!=='todos'?' con este filtro':'')+' registrados</div>';
+    return;
+  }
+  const eb={recogida:'br',traslado:'bt',disponible:'bcomp'};
+  const el={recogida:'🔵 Recogida',traslado:'🟠 Traslado',disponible:'✅ Completado'};
+  document.getElementById('tabla-traslados').innerHTML=`<table class="tabla">
+    <thead><tr><th style="padding-left:20px">Carroza</th><th>Conductor</th><th class="hm">Origen</th><th class="hm">Destino</th><th>Estado</th><th>Hora</th></tr></thead>
+    <tbody>${list.map(t=>`<tr onclick="abrirDetalle('${t.id}')">
+      <td style="padding-left:20px"><strong style="color:var(--gold)">${DB.esc(t.carroza)}</strong></td>
+      <td>${DB.esc(t.conductor)}</td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.5)">${DB.esc(t.origen?.substring(0,25)||'—')}</td>
+      <td class="hm" style="font-size:12px;color:rgba(255,255,255,.5)">${DB.esc(t.destino?.substring(0,25)||'—')}</td>
+      <td><span class="badge ${eb[t.estado]||'br'}">${el[t.estado]||t.estado}</span></td>
+      <td style="font-size:12px;color:rgba(255,255,255,.4)">${t.hora||DB.fmtCorta(t.creadoEn)}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function filtrar(btn, f) {
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTraslados(f);
+}
+
+function renderConductores() {
+  const drivers = DB.getUsuarios().filter(u=>u.rol==='driver'&&u.estado==='activo');
+  if(!drivers.length){
+    document.getElementById('cond-grid').innerHTML='<div class="empty"><span>👥</span>No hay conductores registrados</div>';
+    return;
+  }
+  const tr=DB.getTraslados();
+  const hoy=new Date().toDateString();
+  document.getElementById('cond-grid').innerHTML=drivers.map(u=>{
+    const mes  =tr.filter(t=>t.conductor===u.nombre).length;
+    const hoyN =tr.filter(t=>t.conductor===u.nombre&&new Date(t.creadoEn).toDateString()===hoy).length;
+    return `<div class="cond-card">
+      <div class="ctop"><div class="cav">🚗</div><div><div class="cn">${DB.esc(u.nombre)}</div><div class="cr">${DB.esc(u.regional||'—')}</div></div></div>
+      <span class="badge bdis">Disponible</span>
+      <div class="cstats">
+        <div class="cstat"><div class="csn">${mes}</div><div class="csl">Total</div></div>
+        <div class="cstat"><div class="csn">${hoyN}</div><div class="csl">Hoy</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRegionales() {
+  const regs=DB.getRegionales();
+  if(!regs.length){
+    document.getElementById('lista-regionales').innerHTML='<div class="empty"><span>📍</span>No hay regionales registradas</div>';
+    return;
+  }
+  const tr=DB.getTraslados();
+  const hoy=new Date().toDateString();
+  document.getElementById('lista-regionales').innerHTML=regs.map(r=>{
+    const hoyN=tr.filter(t=>t.creadoEn&&new Date(t.creadoEn).toDateString()===hoy).length;
+    const mes =tr.length;
+    return `<div class="reg-card">
+      <div class="ri">📍</div>
+      <div class="rinfo"><div class="rn">${DB.esc(r.nombre)}</div><div class="rd">${DB.esc(r.ciudad||'—')} · ${DB.esc(r.coord||'—')}</div></div>
+      <div class="rstats">
+        <div><div class="rsn">${hoyN}</div><div class="rsl">Hoy</div></div>
+        <div><div class="rsn">${mes}</div><div class="rsl">Total</div></div>
+      </div>
+      <span class="badge ${r.estado==='activa'?'bdis':'btal'}" style="margin-left:8px">${r.estado==='activa'?'Activa':'Inactiva'}</span>
+    </div>`;
+  }).join('');
+}
+
+function abrirDetalle(id) {
+  const t=DB.getTraslados().find(x=>x.id===id);
+  if(!t)return;
+  trasladoActual=t;
+  const eb={recogida:'🔵 En recogida',traslado:'🟠 En traslado',disponible:'✅ Completado'};
+  document.getElementById('mt-titulo').textContent='Carroza ' + t.carroza;
+  document.getElementById('mt-contenido').innerHTML=[
+    ['Carroza',   t.carroza,                       true],
+    ['Conductor', t.conductor,                     false],
+    ['Origen',    t.origen,                        false],
+    ['Destino',   t.destino,                       false],
+    ['Fallecido', t.fallecido||'—',                false],
+    ['Estado',    eb[t.estado]||t.estado,          false],
+    ['Fecha',     t.fecha||'—',                    false],
+    ['Hora',      t.hora||'—',                     false],
+    ['Km salida', t.kmSalida?t.kmSalida+' km':'—', false],
+    ['Km llegada',t.kmLlegada?t.kmLlegada+' km':'Pendiente',false],
+    ['Registrado',DB.fmtFecha(t.creadoEn),         false],
+  ].map(([k,v,gold])=>`<div class="mrow"><span class="mk">${k}</span><span class="mv${gold?' gold':''}">${DB.esc(String(v||'—'))}</span></div>`).join('');
+  document.getElementById('modal-t').classList.add('open');
+}
+
+function enviarWATraslado() {
+  if(!trasladoActual)return;
+  const t=trasladoActual;
+  const sis=DB.getSistema();
+  const msg=encodeURIComponent(`🚗 *REPORTE — ${sis.nombre||'J.R.'}*\n━━━━━━━━━━━━━━━━━━\n🔖 ${t.carroza}\n👤 ${t.conductor}\n📍 ${t.origen}\n🏁 ${t.destino}\n━━━━━━━━━━━━━━━━━━\n_Salida de Carrozas J.R._`);
+  const wa=sis.wa1?sis.wa1.replace(/\D/g,''):'';
+  window.open(`https://wa.me/${wa||''}?text=${msg}`,'_blank');
+  document.getElementById('modal-t').classList.remove('open');
+}
+</script>
+</body>
+</html>

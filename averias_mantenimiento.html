@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salida de Carrozas J.R. — Averías y Mantenimiento</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="db.js"></script>
+<style>
+:root{--ink:#16162a;--gold:#c9a84c;--gl:#e8c97a;--w:#f9f9fc;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--ink);font-family:'DM Sans',sans-serif;color:var(--w);}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 0% 0%,rgba(192,64,64,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 100% 100%,rgba(201,168,76,.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 24px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:rgba(22,22,42,.97);backdrop-filter:blur(12px);z-index:100;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--w);display:flex;align-items:center;gap:10px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.db-bar{display:flex;align-items:center;gap:7px;padding:7px 24px;background:rgba(26,92,58,.07);border-bottom:1px solid rgba(80,160,100,.1);font-size:11px;color:rgba(144,212,160,.65);}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#90d4a0;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.btn-bk{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-bk:hover{background:rgba(255,255,255,.1);color:var(--w);}
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(22,22,42,.85);position:sticky;top:57px;z-index:50;backdrop-filter:blur(12px);}
+.tab{flex:1;padding:13px 10px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab:hover:not(.active){color:rgba(255,255,255,.6);}
+.notif{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:#c04040;color:#fff;font-size:10px;font-weight:700;margin-left:5px;vertical-align:middle;}
+.page{max-width:780px;margin:0 auto;padding:28px 20px 60px;position:relative;z-index:1;}
+.panel{display:none;}.panel.active{display:block;}
+.pt{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--w);margin-bottom:4px;}
+.ps{font-size:13px;color:rgba(255,255,255,.35);margin-bottom:22px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;margin-bottom:22px;}
+.sc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;text-align:center;}
+.sn{font-family:'Playfair Display',serif;font-size:26px;line-height:1;margin-bottom:3px;}
+.sl{font-size:10px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.07em;}
+.sec{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:22px;margin-bottom:18px;}
+.sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.sec-t::after{content:'';flex:1;height:1px;background:rgba(201,168,76,.2);}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:520px){.f2{grid-template-columns:1fr;}}
+.field{margin-bottom:14px;}.field:last-child{margin-bottom:0;}
+label{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:500;margin-bottom:7px;}
+input,select,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:var(--w);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,background .2s;appearance:none;}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.2);}
+input:focus,select:focus,textarea:focus{border-color:rgba(201,168,76,.5);background:rgba(255,255,255,.07);}
+select option{background:#16162a;color:#f9f9fc;}
+textarea{resize:vertical;min-height:90px;line-height:1.5;}
+.gravbtns{display:flex;gap:10px;}
+.gbtn{flex:1;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;text-align:center;}
+.gbtn.gl{background:rgba(26,92,58,.25);border-color:rgba(80,160,100,.5);color:#90d4a0;}
+.gbtn.gm{background:rgba(92,58,26,.3);border-color:rgba(180,120,60,.5);color:#e8b870;}
+.gbtn.gg{background:rgba(192,64,64,.25);border-color:rgba(220,80,80,.5);color:#f09090;}
+.upl{border:1.5px dashed rgba(255,255,255,.12);border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.upl:hover{border-color:rgba(201,168,76,.35);background:rgba(201,168,76,.03);}
+.upl input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upl-icon{font-size:22px;margin-bottom:5px;}
+.upl-lbl{font-size:13px;color:rgba(255,255,255,.4);}
+.upl-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:2px;}
+.thumb-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.thumb-wrap{position:relative;display:inline-block;}
+.thumb-img{width:68px;height:68px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,.1);}
+.thumb-rm{position:absolute;top:-5px;right:-5px;width:17px;height:17px;border-radius:50%;background:#c04040;color:#fff;font-size:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;display:inline-block;}
+.bl{background:rgba(26,92,58,.25);color:#90d4a0;}.bm{background:rgba(92,58,26,.3);color:#e8b870;}.bg{background:rgba(192,64,64,.25);color:#f09090;}
+.btal{background:rgba(44,74,124,.3);color:#a8c0e8;}.blisto{background:rgba(26,92,58,.25);color:#90d4a0;}
+.actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-danger{flex:1;padding:13px;border-radius:11px;border:1px solid rgba(192,64,64,.4);background:rgba(192,64,64,.1);color:#f09090;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-danger:hover{background:rgba(192,64,64,.2);}
+.btn-wa{flex:1;padding:13px;border-radius:11px;border:1px solid rgba(37,211,102,.35);background:rgba(37,211,102,.08);color:#4dd97a;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-wa:hover{background:rgba(37,211,102,.15);}
+/* Averías en mantenimiento */
+.av-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:12px;animation:si .3s ease both;}
+@keyframes si{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.av-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.av-nombre{font-size:14px;font-weight:500;color:var(--w);}
+.av-fecha{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px;}
+.av-desc{font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:10px;}
+.av-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.38);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:4px 9px;}
+.taller-block{background:rgba(44,74,124,.1);border:1px solid rgba(44,74,124,.22);border-radius:10px;padding:14px;margin-bottom:10px;}
+.taller-title{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#a8c0e8;margin-bottom:10px;font-weight:500;}
+.tf2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.tf2{grid-template-columns:1fr;}}
+.taller-block input,.taller-block select,.taller-block textarea{font-size:13px;padding:9px 12px;}
+.taller-block textarea{min-height:55px;}
+.taller-block .field{margin-bottom:0;}
+.btn-save-taller{margin-top:10px;width:100%;padding:9px;border-radius:9px;border:none;background:rgba(44,74,124,.4);color:#a8c0e8;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-save-taller:hover{background:rgba(44,74,124,.6);color:#d0e0f8;}
+.av-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-listo{padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--gold),var(--gl));color:var(--ink);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-listo:hover{opacity:.88;}
+.btn-notif{padding:9px 14px;border-radius:9px;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.07);color:#4dd97a;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;}
+.btn-notif:hover{background:rgba(37,211,102,.14);}
+/* Timeline historial */
+.tl{position:relative;padding-left:22px;}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.06);}
+.tl-item{position:relative;margin-bottom:18px;}
+.tl-dot{position:absolute;left:-22px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid;}
+.tl-c{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;}
+.tl-c strong{color:var(--w);display:block;margin-bottom:2px;}
+.tl-c span{font-size:11px;color:rgba(255,255,255,.3);}
+.tl-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;}
+.empty{text-align:center;padding:36px 20px;color:rgba(255,255,255,.22);font-size:13px;}
+.empty span{display:block;font-size:28px;margin-bottom:8px;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);border-radius:12px;padding:13px 22px;font-size:13px;font-weight:500;z-index:200;transition:all .35s cubic-bezier(.22,.8,.36,1);opacity:0;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:rgba(26,92,58,.96);border:1px solid rgba(80,160,100,.5);color:#90d4a0;}
+.toast.err{background:rgba(100,28,28,.96);border:1px solid rgba(192,64,64,.5);color:#f09090;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-brand"><div class="dot"></div><span id="app-nombre">Salida de Carrozas J.R.</span></div>
+  <button class="btn-bk" onclick="history.back()">← Volver</button>
+</div>
+<div class="db-bar"><div class="db-dot"></div>Base de datos local activa</div>
+<div class="tabs">
+  <div class="tab active" onclick="setTab('reportar')" id="tab-reportar">🔧 Reportar avería</div>
+  <div class="tab" onclick="setTab('mant')" id="tab-mant">🏭 Mantenimiento <span class="notif" id="notif-mant">0</span></div>
+  <div class="tab" onclick="setTab('historial')" id="tab-historial">📋 Historial</div>
+</div>
+
+<div class="page">
+
+  <!-- REPORTAR -->
+  <div class="panel active" id="panel-reportar">
+    <div class="pt">Reportar avería</div>
+    <div class="ps">Registra el problema con fotos y descripción detallada.</div>
+    <div class="stats">
+      <div class="sc"><div class="sn" style="color:#f09090" id="cnt-g">0</div><div class="sl">Graves</div></div>
+      <div class="sc"><div class="sn" style="color:#e8b870" id="cnt-t">0</div><div class="sl">En taller</div></div>
+      <div class="sc"><div class="sn" style="color:#90d4a0" id="cnt-r">0</div><div class="sl">Resueltas</div></div>
+      <div class="sc"><div class="sn" style="color:var(--gold)" id="cnt-tot">0</div><div class="sl">Historial</div></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">Datos de la avería</div>
+      <div class="f2">
+        <div class="field"><label>Carroza *</label><select id="av-carroza"><option value="">Seleccionar...</option></select></div>
+        <div class="field"><label>Reportado por *</label><select id="av-conductor"><option value="">Seleccionar...</option></select></div>
+      </div>
+      <div class="f2">
+        <div class="field"><label>Fecha</label><input type="date" id="av-fecha"/></div>
+        <div class="field"><label>Hora</label><input type="time" id="av-hora"/></div>
+      </div>
+      <div class="field">
+        <label>Tipo de avería *</label>
+        <select id="av-tipo">
+          <option value="">Seleccionar...</option>
+          <option>Motor — falla de arranque</option>
+          <option>Motor — sobrecalentamiento</option>
+          <option>Frenos — falla de frenado</option>
+          <option>Suspensión — ruido o vibración</option>
+          <option>Eléctrico — luces / batería</option>
+          <option>Llantas — ponchada o desgaste</option>
+          <option>Carrocería — golpe o daño externo</option>
+          <option>Refrigeración — fuga de agua</option>
+          <option>Transmisión — cambios / caja</option>
+          <option>Otro — describir abajo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nivel de gravedad</label>
+        <div class="gravbtns">
+          <button class="gbtn" id="gb-l" onclick="setGrav('leve')">🟢 Leve</button>
+          <button class="gbtn" id="gb-m" onclick="setGrav('media')">🟠 Media</button>
+          <button class="gbtn" id="gb-g" onclick="setGrav('grave')">🔴 Grave</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Ubicación actual de la carroza</label><input type="text" id="av-ubic" placeholder="Ej: Av. Roosevelt con Cra 50, Cali"/></div>
+      <div class="field"><label>Descripción detallada *</label><textarea id="av-desc" placeholder="Describe qué pasó, qué sonidos hace, desde cuándo ocurre..."></textarea></div>
+    </div>
+    <div class="sec">
+      <div class="sec-t">Evidencia fotográfica</div>
+      <div class="f2">
+        <div class="field">
+          <label>Fotos de la avería</label>
+          <div class="upl"><input type="file" accept="image/*" multiple onchange="addFotos(event)"/>
+            <div class="upl-icon">📷</div><div class="upl-lbl">Subir fotos del daño</div><div class="upl-sub">Muestra el área afectada</div>
+          </div>
+          <div class="thumb-grid" id="fotos-grid"></div>
+        </div>
+        <div class="field">
+          <label>Video (opcional)</label>
+          <div class="upl"><input type="file" accept="video/*" onchange="addVideo(event)"/>
+            <div class="upl-icon">🎥</div><div class="upl-lbl">Subir video del problema</div><div class="upl-sub">Útil para sonidos / fallas</div>
+          </div>
+          <div class="thumb-grid" id="video-grid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-danger" onclick="registrarAveria()">🔧 Registrar avería</button>
+      <button class="btn-wa" onclick="reportarWA()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.134.558 4.133 1.535 5.862L.057 23.272a.75.75 0 0 0 .916.964l5.503-1.442A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22.5c-2.033 0-3.93-.546-5.563-1.498l-.396-.235-4.104 1.076 1.107-4.02-.258-.415A10.443 10.443 0 0 1 1.5 12C1.5 6.201 6.201 1.5 12 1.5S22.5 6.201 22.5 12 17.799 22.5 12 22.5z"/></svg>
+        Notificar WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- MANTENIMIENTO -->
+  <div class="panel" id="panel-mant">
+    <div class="pt">Panel de mantenimiento</div>
+    <div class="ps">Gestiona el estado de cada carroza en taller y su fecha de entrega.</div>
+    <div id="lista-mant"><div class="empty"><span>🏭</span>Cargando...</div></div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="panel" id="panel-historial">
+    <div class="pt">Historial de averías</div>
+    <div class="ps">Registro completo para conocer el estado de la flota.</div>
+    <div class="sec">
+      <div class="sec-t">Todas las averías registradas</div>
+      <div class="tl" id="hist-av"></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+DB.init();
+let gravedad = '';
+let fotosAveria = [];
+let videoAveria = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sis = DB.getSistema();
+  document.getElementById('app-nombre').textContent = sis.nombre || 'Salida de Carrozas J.R.';
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('av-fecha').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('av-hora').value  = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  cargarSelects();
+  renderStats();
+  renderMantenimiento();
+  renderHistorial();
+  actualizarBadge();
+});
+
+function setTab(t) {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+function cargarSelects() {
+  const sc = document.getElementById('av-carroza');
+  DB.getCarrozas().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.codigo; o.textContent = `${c.codigo} — ${c.desc}`;
+    sc.appendChild(o);
+  });
+  const sd = document.getElementById('av-conductor');
+  DB.getUsuarios().filter(u=>u.rol==='driver'&&u.estado==='activo').forEach(u => {
+    const o = document.createElement('option');
+    o.value = u.nombre; o.textContent = u.nombre;
+    sd.appendChild(o);
+  });
+}
+
+function renderStats() {
+  const av = DB.getAverias();
+  document.getElementById('cnt-g').textContent   = av.filter(a=>a.gravedad==='grave').length;
+  document.getElementById('cnt-t').textContent   = av.filter(a=>a.estadoTaller&&a.estadoTaller!=='listo').length;
+  document.getElementById('cnt-r').textContent   = av.filter(a=>a.estadoTaller==='listo').length;
+  document.getElementById('cnt-tot').textContent = av.length;
+}
+
+function actualizarBadge() {
+  const n = DB.getAverias().filter(a=>a.estadoTaller&&a.estadoTaller!=='listo').length;
+  const b = document.getElementById('notif-mant');
+  b.textContent = n; b.style.display = n>0?'':'none';
+}
+
+function setGrav(g) {
+  gravedad = g;
+  document.getElementById('gb-l').className='gbtn'+(g==='leve'?' gl':'');
+  document.getElementById('gb-m').className='gbtn'+(g==='media'?' gm':'');
+  document.getElementById('gb-g').className='gbtn'+(g==='grave'?' gg':'');
+}
+
+function addFotos(e) {
+  Array.from(e.target.files).slice(0,8-fotosAveria.length).forEach(f => {
+    if(!f.type.startsWith('image/'))return;
+    const r=new FileReader();
+    r.onload=ev=>{fotosAveria.push({name:f.name,src:ev.target.result});renderFotos();};
+    r.readAsDataURL(f);
+  });
+}
+function renderFotos() {
+  document.getElementById('fotos-grid').innerHTML = fotosAveria.map((f,i)=>
+    `<div class="thumb-wrap"><img class="thumb-img" src="${f.src}"/><button class="thumb-rm" onclick="fotosAveria.splice(${i},1);renderFotos()">×</button></div>`
+  ).join('');
+}
+function addVideo(e) {
+  const f=e.target.files[0]; if(!f)return;
+  videoAveria=f.name;
+  document.getElementById('video-grid').innerHTML=
+    `<div class="thumb-wrap"><div style="width:68px;height:68px;border-radius:8px;background:rgba(44,74,124,.3);border:1px solid rgba(100,140,200,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:18px">🎥<span style="font-size:9px;color:#a8c0e8;margin-top:3px">Video</span></div><button class="thumb-rm" onclick="videoAveria=null;document.getElementById('video-grid').innerHTML=''">×</button></div>`;
+}
+
+function registrarAveria() {
+  const carroza  = document.getElementById('av-carroza').value;
+  const conductor= document.getElementById('av-conductor').value;
+  const tipo     = document.getElementById('av-tipo').value;
+  const desc     = document.getElementById('av-desc').value.trim();
+  if(!carroza||!conductor||!tipo||!desc){toast('⚠️ Completa: carroza, conductor, tipo y descripción.','err');return;}
+
+  const a = DB.addAveria({
+    carroza, conductor, tipo,
+    gravedad:   gravedad||'media',
+    ubicacion:  document.getElementById('av-ubic').value,
+    descripcion:desc,
+    fecha:      document.getElementById('av-fecha').value,
+    hora:       document.getElementById('av-hora').value,
+    fotos:      fotosAveria.length,
+    video:      videoAveria,
+    estadoTaller:'diagnostico',
+    tallerNombre:'', tallerCosto:'', tallerObs:'', tallerFecha:'',
+  });
+
+  // Actualizar estado carroza en DB
+  const carrozas = DB.getCarrozas();
+  const cIdx = carrozas.findIndex(c=>c.codigo===carroza);
+  if(cIdx>=0){carrozas[cIdx].estado='taller';DB.setCarrozas(carrozas);}
+
+  renderStats(); renderMantenimiento(); renderHistorial(); actualizarBadge();
+  toast('🔧 Avería registrada y guardada correctamente','ok');
+
+  // Auto-notificar si configurado
+  const sis=DB.getSistema();
+  if(sis.prefs&&sis.prefs.waAveria&&sis.wa1){
+    setTimeout(()=>reportarWA(),600);
+  }
+
+  // Limpiar
+  document.getElementById('av-carroza').value='';
+  document.getElementById('av-conductor').value='';
+  document.getElementById('av-tipo').value='';
+  document.getElementById('av-desc').value='';
+  document.getElementById('av-ubic').value='';
+  gravedad='';['gb-l','gb-m','gb-g'].forEach(id=>document.getElementById(id).className='gbtn');
+  fotosAveria=[];renderFotos();videoAveria=null;document.getElementById('video-grid').innerHTML='';
+}
+
+function renderMantenimiento() {
+  const list = DB.getAverias().filter(a=>a.estadoTaller&&a.estadoTaller!=='listo');
+  if(!list.length){
+    document.getElementById('lista-mant').innerHTML='<div class="empty"><span>🏭</span>No hay carrozas en mantenimiento activo</div>';
+    return;
+  }
+  const gravBadge={leve:'bl',media:'bm',grave:'bg'};
+  const gravLabel={leve:'🟢 Leve',media:'🟠 Media',grave:'🔴 Grave'};
+  const tallLabel={diagnostico:'En diagnóstico',reparacion:'En reparación','espera-repuesto':'Esperando repuesto',listo:'✅ Listo'};
+  document.getElementById('lista-mant').innerHTML = list.map(a=>`
+    <div class="av-card" id="avc-${a.id}">
+      <div class="av-hdr">
+        <div><div class="av-nombre">${DB.esc(a.carroza)} — ${DB.esc(a.tipo)}</div><div class="av-fecha">Reportado: ${DB.fmtCorta(a.creadoEn)} · ${DB.esc(a.conductor)}</div></div>
+        <span class="badge ${gravBadge[a.gravedad]||'bm'}">${gravLabel[a.gravedad]||'Media'}</span>
+      </div>
+      <div class="av-desc">${DB.esc(a.descripcion)}</div>
+      <div class="av-meta">
+        ${a.ubicacion?`<div class="meta-chip">📍 ${DB.esc(a.ubicacion)}</div>`:''}
+        ${a.fotos?`<div class="meta-chip">📷 ${a.fotos} fotos</div>`:''}
+        ${a.video?`<div class="meta-chip">🎥 Video</div>`:''}
+        <div class="meta-chip badge btal">${tallLabel[a.estadoTaller]||a.estadoTaller}</div>
+      </div>
+      <div class="taller-block">
+        <div class="taller-title">🏭 Respuesta del taller</div>
+        <div class="tf2">
+          <div class="field"><label>Estado</label>
+            <select id="ts-${a.id}" onchange="DB.updAveria('${a.id}',{estadoTaller:this.value});actualizarBadge()">
+              <option value="diagnostico"${a.estadoTaller==='diagnostico'?' selected':''}>En diagnóstico</option>
+              <option value="reparacion"${a.estadoTaller==='reparacion'?' selected':''}>En reparación</option>
+              <option value="espera-repuesto"${a.estadoTaller==='espera-repuesto'?' selected':''}>Esperando repuesto</option>
+              <option value="listo"${a.estadoTaller==='listo'?' selected':''}>✅ Listo para recoger</option>
+            </select>
+          </div>
+          <div class="field"><label>Fecha estimada entrega</label><input type="date" id="tf-${a.id}" value="${a.tallerFecha||''}"/></div>
+          <div class="field"><label>Taller / Mecánico</label><input type="text" id="tn-${a.id}" value="${DB.esc(a.tallerNombre||'')}" placeholder="Nombre del taller"/></div>
+          <div class="field"><label>Costo estimado</label><input type="text" id="tc-${a.id}" value="${DB.esc(a.tallerCosto||'')}" placeholder="Ej: $850.000"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Observaciones del taller</label><textarea id="to-${a.id}" placeholder="Diagnóstico y reparación...">${DB.esc(a.tallerObs||'')}</textarea></div>
+        </div>
+        <button class="btn-save-taller" onclick="guardarTaller('${a.id}')">💾 Guardar estado del taller</button>
+      </div>
+      <div class="av-actions">
+        <button class="btn-listo" onclick="marcarListo('${a.id}')">✅ Marcar lista para recoger</button>
+        <button class="btn-notif" onclick="notifTallerWA('${DB.esc(a.carroza)}','${DB.esc(a.tallerNombre||'')}')">📱 Notificar</button>
+      </div>
+    </div>`).join('');
+}
+
+function guardarTaller(id) {
+  DB.updAveria(id, {
+    estadoTaller: document.getElementById('ts-'+id)?.value,
+    tallerFecha:  document.getElementById('tf-'+id)?.value,
+    tallerNombre: document.getElementById('tn-'+id)?.value,
+    tallerCosto:  document.getElementById('tc-'+id)?.value,
+    tallerObs:    document.getElementById('to-'+id)?.value,
+  });
+  renderStats(); actualizarBadge();
+  toast('💾 Estado del taller guardado','ok');
+}
+
+function marcarListo(id) {
+  DB.updAveria(id, { estadoTaller:'listo' });
+  // Actualizar carroza a disponible
+  const av = DB.getAverias().find(a=>a.id===id);
+  if(av){
+    const carrozas=DB.getCarrozas();
+    const idx=carrozas.findIndex(c=>c.codigo===av.carroza);
+    if(idx>=0){carrozas[idx].estado='disponible';DB.setCarrozas(carrozas);}
+  }
+  renderStats(); renderMantenimiento(); renderHistorial(); actualizarBadge();
+  toast('✅ Carroza marcada como lista para recoger','ok');
+}
+
+function renderHistorial() {
+  const list = DB.getAverias();
+  if(!list.length){
+    document.getElementById('hist-av').innerHTML='<div class="empty"><span>📋</span>No hay averías registradas</div>';
+    return;
+  }
+  const colorMap={leve:'rgba(26,92,58,.3)',media:'rgba(92,58,26,.3)',grave:'rgba(192,64,64,.3)'};
+  const borderMap={leve:'#90d4a0',media:'#e8b870',grave:'#f09090'};
+  const gravBadge={leve:'badge bl',media:'badge bm',grave:'badge bg'};
+  const gravLabel={leve:'🟢 Leve',media:'🟠 Media',grave:'🔴 Grave'};
+  const tallLabel={diagnostico:'En diagnóstico',reparacion:'En reparación','espera-repuesto':'En espera',listo:'✅ Resuelta'};
+  const tallBadge={diagnostico:'badge btal',reparacion:'badge btal','espera-repuesto':'badge btal',listo:'badge blisto'};
+  document.getElementById('hist-av').innerHTML = list.map(a=>`
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${colorMap[a.gravedad]||colorMap.media};border-color:${borderMap[a.gravedad]||borderMap.media}"></div>
+      <div class="tl-c">
+        <strong>${DB.esc(a.carroza)} — ${DB.esc(a.tipo)}</strong>
+        ${DB.fmtCorta(a.creadoEn)} · ${DB.esc(a.conductor)}
+        ${a.tallerCosto?` · Costo: ${DB.esc(a.tallerCosto)}`:''}
+        <div class="tl-badges">
+          <span class="${gravBadge[a.gravedad]||'badge bm'}">${gravLabel[a.gravedad]||'Media'}</span>
+          <span class="${tallBadge[a.estadoTaller||'diagnostico']}">${tallLabel[a.estadoTaller||'diagnostico']}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function reportarWA() {
+  const carroza  = document.getElementById('av-carroza').value||'—';
+  const tipo     = document.getElementById('av-tipo').value||'—';
+  const desc     = document.getElementById('av-desc').value||'—';
+  const g        = gravedad?{leve:'🟢 Leve',media:'🟠 Media',grave:'🔴 Grave'}[gravedad]:'—';
+  const sis      = DB.getSistema();
+  const msg      = encodeURIComponent(`🔧 *AVERÍA — ${sis.nombre||'J.R.'}*\n━━━━━━━━━━━━━━━━━━\n🚗 Carroza: ${carroza}\n🔩 Tipo: ${tipo}\n⚠️ Gravedad: ${g}\n📝 ${desc}\n━━━━━━━━━━━━━━━━━━\n_Reporte automático_`);
+  const wa = sis.wa1?sis.wa1.replace(/\D/g,''):'';
+  window.open(`https://wa.me/${wa||''}?text=${msg}`,'_blank');
+  toast('📱 Notificación enviada por WhatsApp','ok');
+}
+
+function notifTallerWA(carroza, taller) {
+  const sis=DB.getSistema();
+  const msg=encodeURIComponent(`🔧 *AVERÍA — ${sis.nombre||'J.R.'}*\n🚗 Carroza: ${carroza}\n🏭 Taller: ${taller||'—'}\n📅 ${new Date().toLocaleDateString('es-CO')}\n_Salida de Carrozas J.R._`);
+  const wa=sis.wa1?sis.wa1.replace(/\D/g,''):'';
+  window.open(`https://wa.me/${wa||''}?text=${msg}`,'_blank');
+  toast('📱 Notificación enviada','ok');
+}
+
+function toast(msg,tipo='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+tipo;
+  t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3400);
+}
+</script>
+</body>
+</html>
